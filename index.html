@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Law Letter AI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+            },
+            animation: {
+              'pulse-fast': 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+              // From Shimmer Button
+              "shimmer-slide": "shimmer-slide var(--speed) linear infinite",
+              "spin-around": "spin-around calc(var(--speed) * 2) linear infinite",
+              // From Retro Grid
+              grid: "grid 150s linear infinite",
+            },
+            keyframes: {
+                // From Shimmer Button
+                "shimmer-slide": {
+                    "0%": { transform: "translateX(-100%)" },
+                    "100%": { transform: "translateX(100%)" },
+                },
+                "spin-around": {
+                    "0%": { transform: "translateZ(0) rotate(0)" },
+                    "15%, 35%": { transform: "translateZ(0) rotate(90deg)" },
+                    "65%, 85%": { transform: "translateZ(0) rotate(270deg)" },
+                    "100%": { transform: "translateZ(0) rotate(360deg)" },
+                },
+                // From Retro Grid
+                grid: {
+                  "0%": { transform: "translateY(-50%)" },
+                  "100%": { transform: "translateY(0)" },
+                },
+            }
+          }
+        }
+      }
+    </script>
+  <script type="importmap">
+{
+  "imports": {
+    "react/": "https://esm.sh/react@^19.1.0/",
+    "react": "https://esm.sh/react@^19.1.0",
+    "react-dom/": "https://esm.sh/react-dom@^19.1.0/",
+    "@google/genai": "https://esm.sh/@google/genai@^1.8.0",
+    "clsx": "https://esm.sh/clsx@^2.1.1",
+    "tailwind-merge": "https://esm.sh/tailwind-merge@^2.4.0",
+    "motion/react": "https://esm.sh/motion@^10.18.0/react",
+    "motion/": "https://aistudiocdn.com/motion@^12.23.12/"
+  }
+}
+</script>
+</head>
+  <body class="bg-slate-50 dark:bg-gray-950">
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
