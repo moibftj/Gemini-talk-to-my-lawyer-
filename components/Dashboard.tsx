@@ -1,44 +1,49 @@
 import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from './Card';
-import { STATUS_STYLES, IconFilePlus, IconEdit } from '../constants';
+import { STATUS_STYLES, IconFilePlus, IconEdit, IconTrash, getTemplateLabel } from '../constants';
 import { ShimmerButton } from './magicui/shimmer-button';
 import { NeonGradientCard } from './magicui/neon-gradient-card';
 import { BlurFade } from './magicui/blur-fade';
 import { LetterRequestForm } from './LetterRequestForm';
 import { MOCK_LETTERS } from '../constants';
 import type { LetterRequest } from '../types';
+import { Tooltip } from './Tooltip';
 
 type View = 'dashboard' | 'new_letter_form';
 
-const LetterRow: React.FC<{ letter: LetterRequest; onEdit: (letter: LetterRequest) => void }> = ({ letter, onEdit }) => {
+const LetterRow: React.FC<{ letter: LetterRequest; onEdit: (letter: LetterRequest) => void; onDelete: (id: string) => void }> = ({ letter, onEdit, onDelete }) => {
   const style = STATUS_STYLES[letter.status];
   return (
     <div className="flex items-center justify-between py-3 px-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 rounded-lg transition-colors duration-150">
       <div className="flex-1 min-w-0">
         <p className="font-semibold text-gray-900 dark:text-white truncate">{letter.title}</p>
         <p className="text-sm text-gray-500 dark:text-gray-400 capitalize">
-          {letter.letterType.split('_').join(' ')}
+          {getTemplateLabel(letter.letterType)}
         </p>
       </div>
-      <div className="flex items-center space-x-4 ml-4">
+      <div className="flex items-center space-x-2 ml-4">
          <span className={`px-2.5 py-0.5 text-xs font-medium rounded-full ${style.bg} ${style.text} capitalize`}>
             {letter.status.replace('_', ' ')}
         </span>
         <time className="text-sm text-gray-500 dark:text-gray-400 hidden md:block">
             Updated {new Date(letter.updatedAt).toLocaleDateString()}
         </time>
-        <button onClick={() => onEdit(letter)} className="text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 p-1 rounded-full transition-colors">
-            <IconEdit className="h-4 w-4" />
-        </button>
-        <button className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-1 rounded-full">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg>
-        </button>
+        <Tooltip text="Edit Letter">
+            <button onClick={() => onEdit(letter)} className="text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 p-1 rounded-full transition-colors">
+                <IconEdit className="h-4 w-4" />
+            </button>
+        </Tooltip>
+        <Tooltip text="Delete Letter">
+             <button onClick={() => onDelete(letter.id)} className="text-gray-400 hover:text-red-500 dark:hover:text-red-400 p-1 rounded-full transition-colors">
+                <IconTrash className="h-4 w-4" />
+            </button>
+        </Tooltip>
       </div>
     </div>
   );
 };
 
-const LetterList: React.FC<{ letters: LetterRequest[], onNewLetterClick: () => void, onEditLetterClick: (letter: LetterRequest) => void }> = ({ letters, onNewLetterClick, onEditLetterClick }) => {
+const LetterList: React.FC<{ letters: LetterRequest[], onNewLetterClick: () => void, onEditLetterClick: (letter: LetterRequest) => void, onDeleteLetter: (id: string) => void }> = ({ letters, onNewLetterClick, onEditLetterClick, onDeleteLetter }) => {
   return (
     <NeonGradientCard className="w-full" borderRadius={12}>
         <Card className="bg-white/95 dark:bg-slate-900/95">
@@ -47,19 +52,21 @@ const LetterList: React.FC<{ letters: LetterRequest[], onNewLetterClick: () => v
               <CardTitle>My Letter Requests</CardTitle>
               <CardDescription>View and manage all your generated letters.</CardDescription>
             </div>
-            <ShimmerButton onClick={onNewLetterClick} className="shadow-2xl">
-                <span className="whitespace-pre-wrap text-center text-sm font-medium leading-none tracking-tight text-white flex items-center gap-2">
-                    <IconFilePlus className="h-4 w-4" />
-                    New Letter
-                </span>
-            </ShimmerButton>
+            <Tooltip text="Create a new AI-generated letter">
+                <ShimmerButton onClick={onNewLetterClick}>
+                    <span className="flex items-center gap-2">
+                        <IconFilePlus className="h-4 w-4" />
+                        New Letter
+                    </span>
+                </ShimmerButton>
+            </Tooltip>
           </CardHeader>
           <CardContent className="p-0">
             <div className="border-t border-gray-200 dark:border-gray-800">
                 {letters.length > 0 ? (
                     letters.map((letter, idx) => (
                         <BlurFade key={letter.id} delay={0.25 + idx * 0.05} inView>
-                            <LetterRow letter={letter} onEdit={onEditLetterClick} />
+                            <LetterRow letter={letter} onEdit={onEditLetterClick} onDelete={onDeleteLetter} />
                         </BlurFade>
                     ))
                 ) : (
@@ -78,7 +85,7 @@ const LetterList: React.FC<{ letters: LetterRequest[], onNewLetterClick: () => v
 };
 
 export const UserDashboard: React.FC = () => {
-    const [currentView, setCurrentView] = useState<View>('dashboard');
+    const [currentView, setCurrentView] = useState<View>('new_letter_form');
     const [letters, setLetters] = useState<LetterRequest[]>(MOCK_LETTERS);
     const [editingLetter, setEditingLetter] = useState<LetterRequest | null>(null);
   
@@ -87,6 +94,12 @@ export const UserDashboard: React.FC = () => {
     const handleEditLetter = (letter: LetterRequest) => {
       setEditingLetter(letter);
       navigateTo('new_letter_form');
+    };
+
+    const handleDeleteLetter = (id: string) => {
+        if (window.confirm('Are you sure you want to delete this letter? This action cannot be undone.')) {
+            setLetters(prevLetters => prevLetters.filter(l => l.id !== id));
+        }
     };
   
     const handleCancelForm = () => {
@@ -130,6 +143,7 @@ export const UserDashboard: React.FC = () => {
       letters={letters} 
       onNewLetterClick={() => navigateTo('new_letter_form')}
       onEditLetterClick={handleEditLetter}
+      onDeleteLetter={handleDeleteLetter}
     />
   );
 };

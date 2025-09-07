@@ -1,17 +1,57 @@
 import React from 'react';
-import type { LetterRequest, LetterType, LetterStatus } from './types';
+import type { LetterRequest, LetterStatus, LetterTemplate } from './types';
 
-export const LETTER_TYPE_OPTIONS: { value: LetterType, label: string }[] = [
-    { value: 'demand_letter', label: 'Demand Letter' },
-    { value: 'cease_and_desist', label: 'Cease and Desist' },
-    { value: 'defamation_slander', label: 'Defamation/Slander' },
-    { value: 'breach_of_contract', label: 'Breach of Contract' },
-    { value: 'employment_dispute', label: 'Employment Dispute' },
-    { value: 'landlord_tenant', label: 'Landlord/Tenant' },
-    { value: 'debt_collection', label: 'Debt Collection' },
-    { value: 'insurance_claim', label: 'Insurance Claim' },
-    { value: 'other', label: 'Other' },
+export const LETTER_TEMPLATES: LetterTemplate[] = [
+    {
+        value: 'general_demand_letter',
+        label: 'General Demand Letter',
+        description: 'A formal request for a specific action, usually payment of a debt.',
+        requiredFields: ["Recipient's Full Name", "Amount Owed", "Reason for Debt", "Deadline for Action"],
+        body: `Dear [Recipient's Full Name],
+
+This letter serves as a formal demand for payment in the amount of $[Amount Owed]. This debt is in relation to [Reason for Debt].
+
+We have previously attempted to resolve this matter without success. Your immediate attention to this issue is required.
+
+Please submit the full payment of $[Amount Owed] by [Deadline for Action]. Payment can be made to [Your Name] via [Preferred Payment Method].
+
+If we do not receive payment or hear from you by the specified deadline, we will be forced to consider further legal action to recover the debt, which may include but is not limited to, filing a lawsuit.
+
+This is an attempt to collect a debt, and any information obtained will be used for that purpose.
+
+Sincerely,
+[Your Name]
+[Your Company Name, if applicable]
+[Your Address]
+[Your Phone Number]
+[Your Email]`
+    },
+    {
+        value: 'cease_and_desist_harassment',
+        label: 'Cease and Desist (Harassment)',
+        description: 'A letter demanding that an individual or group stop a specified unwanted action.',
+        requiredFields: ["Recipient's Full Name", "Description of Harassing Conduct", "Date(s) of Incidents", "Demanded Action"],
+        body: `Dear [Recipient's Full Name],
+
+This letter is a formal demand that you immediately CEASE AND DESIST all forms of harassment directed towards me, [Your Name].
+
+The harassing conduct includes, but is not limited to, the following: [Description of Harassing Conduct]. These actions occurred on or around the following date(s): [Date(s) of Incidents].
+
+Your actions are causing significant distress and are a violation of my legal rights. I demand that you [Demanded Action] and have no further contact with me, my family, or my associates, whether in person, by phone, in writing, or through any third party.
+
+Failure to comply with this demand immediately will result in me seeking all available legal remedies against you, including but not limited to, filing for a restraining order and pursuing civil action for damages.
+
+This letter is formal notice to you that your actions are not welcome and must stop. Governed by the laws of [Your State/Jurisdiction].
+
+Sincerely,
+[Your Name]`
+    }
 ];
+
+export const getTemplateLabel = (value: string): string => {
+    const template = LETTER_TEMPLATES.find(t => t.value === value);
+    return template ? template.label : value.replace(/_/g, ' ');
+};
 
 export const STATUS_STYLES: Record<LetterStatus, { bg: string, text: string }> = {
   draft: { bg: 'bg-gray-100 dark:bg-gray-700', text: 'text-gray-600 dark:text-gray-300' },
@@ -26,7 +66,7 @@ export const MOCK_LETTERS: LetterRequest[] = [
   {
     id: '1',
     title: 'Demand for Payment - Invoice #123',
-    letterType: 'debt_collection',
+    letterType: 'general_demand_letter',
     status: 'in_review',
     createdAt: '2023-10-26T10:00:00Z',
     updatedAt: '2023-10-26T12:30:00Z',
@@ -35,6 +75,12 @@ export const MOCK_LETTERS: LetterRequest[] = [
     recipientInfo: { name: 'Client Corp' },
     senderInfo: { name: 'My Company' },
     priority: 'medium',
+    templateData: {
+      "Recipient's Full Name": 'Client Corp',
+      "Amount Owed": '5,000',
+      "Reason for Debt": 'Unpaid invoice #123 for consulting services.',
+      "Deadline for Action": 'November 15, 2023',
+    }
   },
   {
     id: '2',
@@ -91,4 +137,8 @@ export const IconUsers: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
 
 export const IconStar: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
     <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+);
+
+export const IconTrash: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+    <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
 );

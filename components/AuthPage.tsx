@@ -5,6 +5,7 @@ import { ShinyButton } from './magicui/shiny-button';
 import { ShimmerButton } from './magicui/shimmer-button';
 import { IconLogo } from '../constants';
 import type { UserRole } from '../types';
+import { isValidEmail } from '../lib/utils';
 
 type View = 'login' | 'signup' | 'forgot_password';
 
@@ -30,12 +31,25 @@ export const AuthPage: React.FC = () => {
   const [role, setRole] = useState<UserRole>('user');
   const [affiliateCode, setAffiliateCode] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [emailError, setEmailError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const { login, signup, requestPasswordReset } = useAuth();
 
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newEmail = e.target.value;
+    setEmail(newEmail);
+    if (newEmail && !isValidEmail(newEmail)) {
+        setEmailError("Please enter a valid email address.");
+    } else {
+        setEmailError(null);
+    }
+  };
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    if (emailError) return;
+
     setLoading(true);
     setError(null);
     setSuccessMessage(null);
@@ -61,6 +75,7 @@ export const AuthPage: React.FC = () => {
     setPassword('');
     setError(null);
     setSuccessMessage(null);
+    setEmailError(null);
   }
 
   const renderContent = () => {
@@ -81,8 +96,9 @@ export const AuthPage: React.FC = () => {
                             placeholder="you@example.com"
                             required
                             value={email}
-                            onChange={(e) => setEmail(e.target.value)}
+                            onChange={handleEmailChange}
                           />
+                          {emailError && <p className="text-xs text-red-500 mt-1">{emailError}</p>}
                         </div>
                     </CardContent>
                     <CardFooter className="flex flex-col gap-4">
@@ -92,7 +108,7 @@ export const AuthPage: React.FC = () => {
                         {loading ? (
                             <ShinyButton disabled className="w-full">Processing...</ShinyButton>
                         ) : (
-                            <ShimmerButton type="submit" className="w-full" disabled={!email}>
+                            <ShimmerButton type="submit" className="w-full" disabled={!email || !!emailError}>
                                 Send Reset Link
                             </ShimmerButton>
                         )}
@@ -124,8 +140,9 @@ export const AuthPage: React.FC = () => {
                     placeholder="you@example.com"
                     required
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={handleEmailChange}
                   />
+                  {emailError && <p className="text-xs text-red-500 mt-1">{emailError}</p>}
                 </div>
                 <div className="space-y-1">
                     <div className="flex justify-between items-baseline">
@@ -170,9 +187,11 @@ export const AuthPage: React.FC = () => {
                 {error && <p className="text-sm text-red-500 text-center">{error}</p>}
                 
                 {loading ? (
-                    <ShinyButton disabled className="w-full">Processing...</ShinyButton>
+                    <ShinyButton disabled className="w-full">
+                        Processing...
+                    </ShinyButton>
                 ) : (
-                    <ShimmerButton type="submit" className="w-full" disabled={!email || !password}>
+                    <ShimmerButton type="submit" className="w-full" disabled={!email || !password || !!emailError}>
                         {view === 'login' ? 'Sign In' : 'Sign Up'}
                     </ShimmerButton>
                 )}
