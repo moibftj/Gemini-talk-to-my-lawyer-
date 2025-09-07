@@ -55,7 +55,7 @@ export const generateLetterDraft = async ({ title, templateBody, templateFields,
         ${styleInstructions}
         **Instructions:**
         1.  Carefully replace the placeholders (e.g., [Your Name], [Amount Owed]) in the template with the corresponding user-provided details.
-        2.  If a detail for a placeholder is not provided, leave the placeholder as is.
+        2.  If a detail for a placeholder is not provided, you MUST replace it with a clear indicator like "[Information Not Provided]" in the final letter. Do not leave the original placeholder (e.g., [Amount Owed]) in the text.
         3.  Incorporate the "Additional Context" where it seems most relevant within the letter body to add necessary detail or clarify points.
         4.  Ensure the final letter flows naturally and is grammatically correct after filling in the details.
         5.  Adhere strictly to the Tone & Style instructions when filling in the template.

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from './Card';
 import { STATUS_STYLES, IconFilePlus, IconEdit, IconTrash, getTemplateLabel } from '../constants';
@@ -47,7 +48,7 @@ const LetterList: React.FC<{ letters: LetterRequest[], onNewLetterClick: () => v
   return (
     <NeonGradientCard className="w-full" borderRadius={12}>
         <Card className="bg-white/95 dark:bg-slate-900/95">
-          <CardHeader className="flex flex-row items-center justify-between">
+          <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
               <CardTitle>My Letter Requests</CardTitle>
               <CardDescription>View and manage all your generated letters.</CardDescription>
@@ -84,8 +85,12 @@ const LetterList: React.FC<{ letters: LetterRequest[], onNewLetterClick: () => v
   );
 };
 
-export const UserDashboard: React.FC = () => {
-    const [currentView, setCurrentView] = useState<View>('new_letter_form');
+interface UserDashboardProps {
+    currentView: View;
+    setCurrentView: (view: View) => void;
+}
+
+export const UserDashboard: React.FC<UserDashboardProps> = ({ currentView, setCurrentView }) => {
     const [letters, setLetters] = useState<LetterRequest[]>(MOCK_LETTERS);
     const [editingLetter, setEditingLetter] = useState<LetterRequest | null>(null);
   
@@ -141,7 +146,10 @@ export const UserDashboard: React.FC = () => {
   return (
     <LetterList 
       letters={letters} 
-      onNewLetterClick={() => navigateTo('new_letter_form')}
+      onNewLetterClick={() => {
+        setEditingLetter(null);
+        navigateTo('new_letter_form')}
+      }
       onEditLetterClick={handleEditLetter}
       onDeleteLetter={handleDeleteLetter}
     />

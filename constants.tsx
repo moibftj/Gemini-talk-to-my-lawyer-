@@ -45,6 +45,67 @@ This letter is formal notice to you that your actions are not welcome and must s
 
 Sincerely,
 [Your Name]`
+    },
+    {
+        value: 'academic_recommendation',
+        label: 'Academic Letter of Recommendation',
+        description: 'A letter written to recommend a student for an academic program or scholarship.',
+        requiredFields: ["Student's Full Name", "Your Name and Title", "Your Relationship to Student", "Specific Course/Project", "Key Strengths (e.g., critical thinking, research skills)", "University/Program Applying To"],
+        body: `To Whom It May Concern,
+
+It is with great pleasure that I recommend [Student's Full Name] for admission to the [University/Program Applying To]. As their [Your Name and Title], I have had the opportunity to observe [Student's Full Name]'s academic and personal development during their time in my [Specific Course/Project].
+
+I have known [Student's Full Name] for [Your Relationship to Student]. During this period, they have consistently demonstrated exceptional qualities. I was particularly impressed with their [Key Strengths (e.g., critical thinking, research skills)]. [Student's Full Name] is a dedicated and intelligent individual with a strong aptitude for learning.
+
+I am confident that [Student's Full Name] possesses the necessary skills, determination, and character to succeed in your program. They have my highest recommendation.
+
+Please feel free to contact me if you require any further information.
+
+Sincerely,
+[Your Name and Title]`
+    },
+    {
+        value: 'acknowledgment_of_complaint',
+        label: 'Acknowledgment of Customer Complaint',
+        description: 'A formal acknowledgment to a customer that their complaint has been received and is being addressed.',
+        requiredFields: ["Customer Name", "Complaint Reference Number", "Date of Complaint", "Brief Summary of Complaint", "Your Name and Title", "Expected Resolution Timeframe"],
+        body: `Dear [Customer Name],
+
+This letter is to confirm that we have received your complaint, reference number [Complaint Reference Number], which was submitted on [Date of Complaint].
+
+We understand your complaint is regarding: [Brief Summary of Complaint].
+
+Please accept our sincerest apologies for any inconvenience this issue may have caused. We take customer feedback very seriously, and we are committed to resolving this matter to your satisfaction. Your complaint has been forwarded to the appropriate department for a full investigation.
+
+We will conduct a thorough review and aim to provide you with a substantive response within [Expected Resolution Timeframe]. We appreciate your patience as we look into this.
+
+Thank you for bringing this to our attention.
+
+Sincerely,
+[Your Name and Title]`
+    },
+    {
+        value: 'notice_to_quit',
+        label: 'Notice to Quit (Landlord-Tenant)',
+        description: 'A formal notice from a landlord to a tenant to vacate the rental property.',
+        requiredFields: ["Tenant(s) Name(s)", "Rental Property Address", "Reason for Notice (e.g., non-payment of rent, lease violation)", "Date to Vacate By", "Landlord/Property Manager Name"],
+        body: `NOTICE TO QUIT
+
+To: [Tenant(s) Name(s)]
+Address of Premises: [Rental Property Address]
+
+YOU ARE HEREBY NOTIFIED to quit and deliver up possession of the premises you now occupy as our tenant, located at the address above, on or before [Date to Vacate By].
+
+This notice is given for the following reason(s): [Reason for Notice (e.g., non-payment of rent, lease violation)].
+
+Your compliance with this notice by the date specified will terminate your tenancy. Failure to vacate the premises by [Date to Vacate By] will result in legal proceedings being instituted against you to recover possession of the premises, which may include a claim for damages and legal fees.
+
+This notice is intended as a formal demand for possession of the property.
+
+Dated this day: [Current Date]
+
+Sincerely,
+[Landlord/Property Manager Name]`
     }
 ];
 
