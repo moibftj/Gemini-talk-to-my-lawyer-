@@ -1,10 +1,5 @@
+
 import { GoogleGenAI } from "@google/genai";
-
-if (!process.env.API_KEY) {
-  throw new Error("API_KEY environment variable not set.");
-}
-
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY! });
 
 export type LetterTone = 'Formal' | 'Aggressive' | 'Conciliatory' | 'Neutral';
 export type LetterLength = 'Short' | 'Medium' | 'Long';
@@ -19,6 +14,11 @@ interface LetterDetails {
 }
 
 export const generateLetterDraft = async ({ title, templateBody, templateFields, additionalContext, tone, length }: LetterDetails): Promise<string> => {
+    if (!process.env.API_KEY) {
+      throw new Error("API_KEY environment variable not set.");
+    }
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    
     const model = "gemini-2.5-flash";
 
     let styleInstructions = '';

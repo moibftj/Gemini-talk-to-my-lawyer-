@@ -26,25 +26,53 @@ const StatCard: React.FC<{ title: string; value: string | number; description: s
             </CardContent>
         </Card>
     </BlurFade>
-)
+);
+
+const EmployeeDashboardSkeleton: React.FC = () => (
+    <Card className="w-full">
+        <CardHeader>
+            <div className="h-6 bg-slate-200 dark:bg-slate-700 rounded w-1/3 animate-pulse"></div>
+            <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-1/2 animate-pulse mt-2"></div>
+        </CardHeader>
+        <CardContent className="space-y-6">
+            <div className="p-4 rounded-lg bg-slate-100 dark:bg-slate-800/80 animate-pulse">
+                <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-1/4 mx-auto"></div>
+                <div className="h-8 bg-slate-200 dark:bg-slate-700 rounded w-1/2 mx-auto mt-2"></div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-slate-200 dark:border-slate-700/50">
+                {[...Array(3)].map((_, i) => (
+                    <Card key={i} className="bg-white/80 dark:bg-slate-900/80 animate-pulse">
+                        <CardHeader className="pb-2">
+                            <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-1/2"></div>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="h-10 bg-slate-200 dark:bg-slate-700 rounded w-1/3"></div>
+                            <div className="h-3 bg-slate-200 dark:bg-slate-700 rounded w-2/3 mt-2"></div>
+                        </CardContent>
+                    </Card>
+                ))}
+            </div>
+        </CardContent>
+    </Card>
+);
 
 export const EmployeeDashboard: React.FC = () => {
     const { user } = useAuth();
     const [stats, setStats] = useState<AffiliateStats | null>(null);
 
     useEffect(() => {
-        if (user && user.role === 'employee') {
-            const data = getAffiliateData(user.email);
-            setStats(data);
-        }
+        // Simulate network delay for fetching data
+        const timer = setTimeout(() => {
+            if (user && user.role === 'employee') {
+                const data = getAffiliateData(user.email);
+                setStats(data);
+            }
+        }, 1000);
+        return () => clearTimeout(timer);
     }, [user]);
 
     if (!stats) {
-        return (
-            <div className="flex justify-center items-center p-8">
-                <p>Loading affiliate data...</p>
-            </div>
-        );
+        return <EmployeeDashboardSkeleton />;
     }
 
     return (

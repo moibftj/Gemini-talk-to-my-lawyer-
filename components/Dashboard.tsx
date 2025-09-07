@@ -1,7 +1,6 @@
-
 import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from './Card';
-import { STATUS_STYLES, IconFilePlus, IconEdit, IconTrash, getTemplateLabel } from '../constants';
+import { STATUS_STYLES, IconFilePlus, IconEdit, IconTrash, getTemplateLabel, IconSpinner } from '../constants';
 import { ShimmerButton } from './magicui/shimmer-button';
 import { NeonGradientCard } from './magicui/neon-gradient-card';
 import { BlurFade } from './magicui/blur-fade';
@@ -9,10 +8,11 @@ import { LetterRequestForm } from './LetterRequestForm';
 import { MOCK_LETTERS } from '../constants';
 import type { LetterRequest } from '../types';
 import { Tooltip } from './Tooltip';
+import { ConfirmationModal } from './ConfirmationModal';
 
 type View = 'dashboard' | 'new_letter_form';
 
-const LetterRow: React.FC<{ letter: LetterRequest; onEdit: (letter: LetterRequest) => void; onDelete: (id: string) => void }> = ({ letter, onEdit, onDelete }) => {
+const LetterRow: React.FC<{ letter: LetterRequest; onEdit: (letter: LetterRequest) => void; onDelete: (id: string) => void; isDeleting: boolean; }> = ({ letter, onEdit, onDelete, isDeleting }) => {
   const style = STATUS_STYLES[letter.status];
   return (
     <div className="flex items-center justify-between py-3 px-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 rounded-lg transition-colors duration-150">
@@ -30,13 +30,13 @@ const LetterRow: React.FC<{ letter: LetterRequest; onEdit: (letter: LetterReques
             Updated {new Date(letter.updatedAt).toLocaleDateString()}
         </time>
         <Tooltip text="Edit Letter">
-            <button onClick={() => onEdit(letter)} className="text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 p-1 rounded-full transition-colors">
+            <button onClick={() => onEdit(letter)} className="text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 p-1 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled={isDeleting}>
                 <IconEdit className="h-4 w-4" />
             </button>
         </Tooltip>
         <Tooltip text="Delete Letter">
-             <button onClick={() => onDelete(letter.id)} className="text-gray-400 hover:text-red-500 dark:hover:text-red-400 p-1 rounded-full transition-colors">
-                <IconTrash className="h-4 w-4" />
+             <button onClick={() => onDelete(letter.id)} className="text-gray-400 hover:text-red-500 dark:hover:text-red-400 p-1 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled={isDeleting}>
+                {isDeleting ? <IconSpinner className="h-4 w-4 animate-spin" /> : <IconTrash className="h-4 w-4" />}
             </button>
         </Tooltip>
       </div>
@@ -44,7 +44,7 @@ const LetterRow: React.FC<{ letter: LetterRequest; onEdit: (letter: LetterReques
   );
 };
 
-const LetterList: React.FC<{ letters: LetterRequest[], onNewLetterClick: () => void, onEditLetterClick: (letter: LetterRequest) => void, onDeleteLetter: (id: string) => void }> = ({ letters, onNewLetterClick, onEditLetterClick, onDeleteLetter }) => {
+const LetterList: React.FC<{ letters: LetterRequest[], onNewLetterClick: () => void, onEditLetterClick: (letter: LetterRequest) => void, onDeleteLetter: (id: string) => void, isDeletingId: string | null }> = ({ letters, onNewLetterClick, onEditLetterClick, onDeleteLetter, isDeletingId }) => {
   return (
     <NeonGradientCard className="w-full" borderRadius={12}>
         <Card className="bg-white/95 dark:bg-slate-900/95">
@@ -67,7 +67,7 @@ const LetterList: React.FC<{ letters: LetterRequest[], onNewLetterClick: () => v
                 {letters.length > 0 ? (
                     letters.map((letter, idx) => (
                         <BlurFade key={letter.id} delay={0.25 + idx * 0.05} inView>
-                            <LetterRow letter={letter} onEdit={onEditLetterClick} onDelete={onDeleteLetter} />
+                            <LetterRow letter={letter} onEdit={onEditLetterClick} onDelete={onDeleteLetter} isDeleting={isDeletingId === letter.id} />
                         </BlurFade>
                     ))
                 ) : (
@@ -93,6 +93,8 @@ interface UserDashboardProps {
 export const UserDashboard: React.FC<UserDashboardProps> = ({ currentView, setCurrentView }) => {
     const [letters, setLetters] = useState<LetterRequest[]>(MOCK_LETTERS);
     const [editingLetter, setEditingLetter] = useState<LetterRequest | null>(null);
+    const [isDeletingId, setIsDeletingId] = useState<string | null>(null);
+    const [letterToDeleteId, setLetterToDeleteId] = useState<string | null>(null);
   
     const navigateTo = (view: View) => setCurrentView(view);
   
@@ -101,10 +103,24 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({ currentView, setCu
       navigateTo('new_letter_form');
     };
 
-    const handleDeleteLetter = (id: string) => {
-        if (window.confirm('Are you sure you want to delete this letter? This action cannot be undone.')) {
-            setLetters(prevLetters => prevLetters.filter(l => l.id !== id));
-        }
+    const handleDeleteRequest = (id: string) => {
+        setLetterToDeleteId(id);
+    };
+
+    const handleConfirmDelete = () => {
+        if (!letterToDeleteId) return;
+
+        setIsDeletingId(letterToDeleteId);
+        // Simulate API call
+        setTimeout(() => {
+            setLetters(prevLetters => prevLetters.filter(l => l.id !== letterToDeleteId));
+            setIsDeletingId(null);
+            setLetterToDeleteId(null); // Close modal
+        }, 1000);
+    };
+
+    const handleCancelDelete = () => {
+        setLetterToDeleteId(null);
     };
   
     const handleCancelForm = () => {
@@ -144,14 +160,25 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({ currentView, setCu
   }
   
   return (
-    <LetterList 
-      letters={letters} 
-      onNewLetterClick={() => {
-        setEditingLetter(null);
-        navigateTo('new_letter_form')}
-      }
-      onEditLetterClick={handleEditLetter}
-      onDeleteLetter={handleDeleteLetter}
-    />
+    <>
+      <LetterList 
+        letters={letters} 
+        onNewLetterClick={() => {
+          setEditingLetter(null);
+          navigateTo('new_letter_form')}
+        }
+        onEditLetterClick={handleEditLetter}
+        onDeleteLetter={handleDeleteRequest}
+        isDeletingId={isDeletingId}
+      />
+      <ConfirmationModal
+          isOpen={!!letterToDeleteId}
+          onClose={handleCancelDelete}
+          onConfirm={handleConfirmDelete}
+          title="Delete Letter"
+          message="Are you sure you want to delete this letter? This action cannot be undone."
+          isConfirming={isDeletingId === letterToDeleteId}
+      />
+    </>
   );
 };
