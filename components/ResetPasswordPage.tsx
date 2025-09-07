@@ -4,28 +4,15 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { ShinyButton } from './magicui/shiny-button';
 import { ShimmerButton } from './magicui/shimmer-button';
 import { IconLogo } from '../constants';
+import { AuthPage } from './AuthPage';
 
-interface ResetPasswordPageProps {
-    token: string;
-    onResetSuccess: () => void;
-}
-
-const Label: React.FC<React.LabelHTMLAttributes<HTMLLabelElement>> = ({ className, ...props }) => (
-  <label className={`block text-sm font-medium text-gray-700 dark:text-gray-300 ${className}`} {...props} />
-);
-
-const Input: React.FC<React.InputHTMLAttributes<HTMLInputElement>> = ({ className, ...props }) => (
-  <input className={`mt-1 flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-500 dark:placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${className}`} {...props} />
-);
-
-
-export const ResetPasswordPage: React.FC<ResetPasswordPageProps> = ({ token, onResetSuccess }) => {
+export const ResetPasswordPage: React.FC = () => {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
-    const { resetPassword } = useAuth();
+    const { updateUserPassword } = useAuth();
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
@@ -33,10 +20,14 @@ export const ResetPasswordPage: React.FC<ResetPasswordPageProps> = ({ token, onR
             setError("Passwords do not match.");
             return;
         }
+        if (password.length < 6) {
+            setError("Password must be at least 6 characters long.");
+            return;
+        }
         setLoading(true);
         setError(null);
         try {
-            await resetPassword(token, password);
+            await updateUserPassword(password);
             setSuccess(true);
         } catch (err: any) {
             setError(err.message);
@@ -44,6 +35,10 @@ export const ResetPasswordPage: React.FC<ResetPasswordPageProps> = ({ token, onR
             setLoading(false);
         }
     };
+
+    if (success) {
+        return <AuthPage />; // Or a dedicated success page that redirects to login
+    }
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-gray-950 flex flex-col items-center justify-center p-4">
@@ -55,56 +50,50 @@ export const ResetPasswordPage: React.FC<ResetPasswordPageProps> = ({ token, onR
             <CardHeader>
               <CardTitle className="text-2xl">Set New Password</CardTitle>
               <CardDescription>
-                {success ? 'Your password has been updated successfully.' : 'Enter a new password for your account.'}
+                Enter a new password for your account.
               </CardDescription>
             </CardHeader>
-            {success ? (
-                <CardContent>
-                    <ShimmerButton onClick={onResetSuccess} className="w-full">
-                        Return to Sign In
+            <form onSubmit={handleSubmit}>
+              <CardContent className="space-y-4">
+                <div className="space-y-1">
+                  <label htmlFor="password">New Password</label>
+                  <input
+                    id="password"
+                    type="password"
+                    required
+                    minLength={6}
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className={`mt-1 flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-500 dark:placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50`}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label htmlFor="confirmPassword">Confirm New Password</label>
+                  <input
+                    id="confirmPassword"
+                    type="password"
+                    required
+                    minLength={6}
+                    placeholder="••••••••"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className={`mt-1 flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-500 dark:placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50`}
+                  />
+                </div>
+              </CardContent>
+              <CardFooter className="flex flex-col gap-4">
+                {error && <p className="text-sm text-red-500 text-center">{error}</p>}
+                
+                {loading ? (
+                    <ShinyButton disabled className="w-full">Saving...</ShinyButton>
+                ) : (
+                    <ShimmerButton type="submit" className="w-full" disabled={!password || password !== confirmPassword}>
+                        Set New Password
                     </ShimmerButton>
-                </CardContent>
-            ) : (
-                <form onSubmit={handleSubmit}>
-                  <CardContent className="space-y-4">
-                    <div className="space-y-1">
-                      <Label htmlFor="password">New Password</Label>
-                      <Input
-                        id="password"
-                        type="password"
-                        required
-                        minLength={6}
-                        placeholder="••••••••"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <Label htmlFor="confirmPassword">Confirm New Password</Label>
-                      <Input
-                        id="confirmPassword"
-                        type="password"
-                        required
-                        minLength={6}
-                        placeholder="••••••••"
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                      />
-                    </div>
-                  </CardContent>
-                  <CardFooter className="flex flex-col gap-4">
-                    {error && <p className="text-sm text-red-500 text-center">{error}</p>}
-                    
-                    {loading ? (
-                        <ShinyButton disabled className="w-full">Saving...</ShinyButton>
-                    ) : (
-                        <ShimmerButton type="submit" className="w-full" disabled={!password || password !== confirmPassword}>
-                            Set New Password
-                        </ShimmerButton>
-                    )}
-                  </CardFooter>
-                </form>
-            )}
+                )}
+              </CardFooter>
+            </form>
           </Card>
         </div>
     );

@@ -56,7 +56,7 @@ const FormattedDraft: React.FC<{ text: string }> = ({ text }) => {
 };
 
 interface LetterRequestFormProps {
-  onFormSubmit: (letterData: Omit<LetterRequest, 'id' | 'createdAt' | 'updatedAt'> | LetterRequest) => void;
+  onFormSubmit: (letterData: Partial<LetterRequest>) => Promise<void>;
   onCancel: () => void;
   letterToEdit?: LetterRequest | null;
 }
@@ -133,28 +133,27 @@ export const LetterRequestForm: React.FC<LetterRequestFormProps> = ({ onFormSubm
     }
   };
 
-  const handleSaveLetter = () => {
+  const handleSaveLetter = async () => {
     if (!selectedTemplate) return;
     setIsSaving(true);
-    const letterData: Omit<LetterRequest, 'id' | 'createdAt' | 'updatedAt'> | LetterRequest = {
-        ...(letterToEdit || {}), // Keep id if editing
-        title,
-        letterType: selectedTemplate.value,
-        description: additionalContext,
-        templateData: formData,
-        aiGeneratedContent: aiDraft,
-        // Mocked/default values for other fields
-        status: letterToEdit?.status || 'draft',
-        priority: letterToEdit?.priority || 'medium',
-        recipientInfo: letterToEdit?.recipientInfo || {},
-        senderInfo: letterToEdit?.senderInfo || {},
-        userId: letterToEdit?.userId || 'user-1',
-    };
-    // Simulate API call
-    setTimeout(() => {
-        onFormSubmit(letterData);
+    try {
+        const letterData: Partial<LetterRequest> = {
+            id: letterToEdit?.id, // Keep id if editing
+            title,
+            letterType: selectedTemplate.value,
+            description: additionalContext,
+            templateData: formData,
+            aiGeneratedContent: aiDraft,
+            status: letterToEdit?.status || 'draft',
+            priority: letterToEdit?.priority || 'medium',
+        };
+        await onFormSubmit(letterData);
+    } catch (error) {
+        console.error("Failed to save letter:", error);
+        setError("Could not save the letter. Please try again.");
+    } finally {
         setIsSaving(false);
-    }, 1000);
+    }
   };
 
     const handleSendEmail = (e: React.FormEvent) => {

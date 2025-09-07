@@ -16,29 +16,17 @@ import { ResetPasswordPage } from './components/ResetPasswordPage';
 type UserDashboardView = 'dashboard' | 'new_letter_form';
 
 const App: React.FC = () => {
-  const { user, isLoading } = useAuth();
-  const [resetToken, setResetToken] = useState<string | null>(null);
+  const { user, isLoading, authEvent } = useAuth();
   const [userDashboardView, setUserDashboardView] = useState<UserDashboardView>('dashboard');
-
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const token = params.get('reset_token');
-    if (token) {
-        setResetToken(token);
-    }
-  }, []);
-
 
   if (isLoading) {
     return <Spinner />;
   }
-
-  if (resetToken) {
-      return <ResetPasswordPage token={resetToken} onResetSuccess={() => {
-          setResetToken(null);
-          // remove token from url
-          window.history.replaceState({}, document.title, window.location.pathname);
-      }} />;
+  
+  // Supabase sends a PASSWORD_RECOVERY event when the user clicks the reset link.
+  // We use this to show the password update form.
+  if (authEvent === 'PASSWORD_RECOVERY') {
+    return <ResetPasswordPage />;
   }
 
   if (!user) {

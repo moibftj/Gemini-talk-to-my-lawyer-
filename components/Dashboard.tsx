@@ -1,16 +1,44 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from './Card';
 import { STATUS_STYLES, IconFilePlus, IconEdit, IconTrash, getTemplateLabel, IconSpinner } from '../constants';
 import { ShimmerButton } from './magicui/shimmer-button';
 import { NeonGradientCard } from './magicui/neon-gradient-card';
 import { BlurFade } from './magicui/blur-fade';
 import { LetterRequestForm } from './LetterRequestForm';
-import { MOCK_LETTERS } from '../constants';
+import { apiClient } from '../services/apiClient';
 import type { LetterRequest } from '../types';
 import { Tooltip } from './Tooltip';
 import { ConfirmationModal } from './ConfirmationModal';
 
 type View = 'dashboard' | 'new_letter_form';
+
+const LetterListSkeleton: React.FC = () => (
+    <Card className="w-full animate-pulse">
+        <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+             <div>
+                <div className="h-6 bg-slate-200 dark:bg-slate-700 rounded w-48"></div>
+                <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-64 mt-2"></div>
+            </div>
+            <div className="h-10 bg-slate-300 dark:bg-slate-700 rounded-lg w-32"></div>
+        </CardHeader>
+        <CardContent className="p-0 border-t border-gray-200 dark:border-gray-800">
+            {[...Array(3)].map((_, i) => (
+                <div key={i} className="flex items-center justify-between py-3 px-4">
+                    <div className="flex-1 min-w-0">
+                        <div className="h-5 bg-slate-200 dark:bg-slate-700 rounded w-3/5"></div>
+                        <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-2/5 mt-2"></div>
+                    </div>
+                    <div className="flex items-center space-x-2 ml-4">
+                        <div className="h-5 bg-slate-200 dark:bg-slate-700 rounded-full w-20"></div>
+                        <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-24 hidden md:block"></div>
+                        <div className="h-6 w-6 bg-slate-200 dark:bg-slate-700 rounded-full"></div>
+                        <div className="h-6 w-6 bg-slate-200 dark:bg-slate-700 rounded-full"></div>
+                    </div>
+                </div>
+            ))}
+        </CardContent>
+    </Card>
+);
 
 const LetterRow: React.FC<{ letter: LetterRequest; onEdit: (letter: LetterRequest) => void; onDelete: (id: string) => void; isDeleting: boolean; }> = ({ letter, onEdit, onDelete, isDeleting }) => {
   const style = STATUS_STYLES[letter.status];
@@ -91,10 +119,28 @@ interface UserDashboardProps {
 }
 
 export const UserDashboard: React.FC<UserDashboardProps> = ({ currentView, setCurrentView }) => {
-    const [letters, setLetters] = useState<LetterRequest[]>(MOCK_LETTERS);
+    const [letters, setLetters] = useState<LetterRequest[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
     const [editingLetter, setEditingLetter] = useState<LetterRequest | null>(null);
     const [isDeletingId, setIsDeletingId] = useState<string | null>(null);
     const [letterToDeleteId, setLetterToDeleteId] = useState<string | null>(null);
+
+    useEffect(() => {
+        const loadLetters = async () => {
+            setIsLoading(true);
+            try {
+                const fetchedLetters = await apiClient.fetchLetters();
+                setLetters(fetchedLetters);
+            } catch (error) {
+                console.error("Failed to fetch letters:", error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        if (currentView === 'dashboard') {
+            loadLetters();
+        }
+    }, [currentView]);
   
     const navigateTo = (view: View) => setCurrentView(view);
   
@@ -107,16 +153,18 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({ currentView, setCu
         setLetterToDeleteId(id);
     };
 
-    const handleConfirmDelete = () => {
+    const handleConfirmDelete = async () => {
         if (!letterToDeleteId) return;
-
         setIsDeletingId(letterToDeleteId);
-        // Simulate API call
-        setTimeout(() => {
+        try {
+            await apiClient.deleteLetter(letterToDeleteId);
             setLetters(prevLetters => prevLetters.filter(l => l.id !== letterToDeleteId));
+        } catch (error) {
+            console.error("Failed to delete letter:", error);
+        } finally {
             setIsDeletingId(null);
-            setLetterToDeleteId(null); // Close modal
-        }, 1000);
+            setLetterToDeleteId(null);
+        }
     };
 
     const handleCancelDelete = () => {
@@ -128,22 +176,13 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({ currentView, setCu
       navigateTo('dashboard');
     };
   
-    const handleSaveLetter = (letterData: Omit<LetterRequest, 'id' | 'createdAt' | 'updatedAt'> | LetterRequest) => {
-      if ('id' in letterData && letterData.id) {
+    const handleSaveLetter = async (letterData: Partial<LetterRequest>) => {
+      if (letterData.id) {
         // Update existing letter
-        const updatedLetter = { ...letterData, updatedAt: new Date().toISOString() } as LetterRequest;
-        setLetters(prevLetters => 
-          prevLetters.map(l => (l.id === updatedLetter.id ? updatedLetter : l))
-        );
+        await apiClient.updateLetter(letterData as LetterRequest);
       } else {
         // Create new letter
-        const newLetter: LetterRequest = {
-          ...letterData,
-          id: `letter-${Date.now()}`,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        };
-        setLetters(prevLetters => [newLetter, ...prevLetters]);
+        await apiClient.createLetter(letterData);
       }
       setEditingLetter(null);
       navigateTo('dashboard');
@@ -161,16 +200,20 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({ currentView, setCu
   
   return (
     <>
-      <LetterList 
-        letters={letters} 
-        onNewLetterClick={() => {
-          setEditingLetter(null);
-          navigateTo('new_letter_form')}
-        }
-        onEditLetterClick={handleEditLetter}
-        onDeleteLetter={handleDeleteRequest}
-        isDeletingId={isDeletingId}
-      />
+      {isLoading ? (
+        <LetterListSkeleton />
+      ) : (
+        <LetterList 
+          letters={letters} 
+          onNewLetterClick={() => {
+            setEditingLetter(null);
+            navigateTo('new_letter_form')}
+          }
+          onEditLetterClick={handleEditLetter}
+          onDeleteLetter={handleDeleteRequest}
+          isDeletingId={isDeletingId}
+        />
+      )}
       <ConfirmationModal
           isOpen={!!letterToDeleteId}
           onClose={handleCancelDelete}

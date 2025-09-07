@@ -15,7 +15,8 @@
     "clsx": "^2.1.1",
     "tailwind-merge": "^2.4.0",
     "framer-motion": "^11.3.8",
-    "jspdf": "^2.5.1"
+    "jspdf": "^2.5.1",
+    "@supabase/supabase-js": "^2.44.4"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",

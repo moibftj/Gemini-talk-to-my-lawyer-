@@ -1,14 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from './Card';
-import { MOCK_LETTERS } from '../constants';
-import { USERS_STORAGE_KEY } from '../lib/auth';
-import type { LetterRequest, UserRole } from '../types';
+import { apiClient } from '../services/apiClient';
+import type { UserRole } from '../types';
 import { NeonGradientCard } from './magicui/neon-gradient-card';
 import { BlurFade } from './magicui/blur-fade';
 
-interface StoredUser {
-    hash: string;
-    role: UserRole;
+// Simplified types for display
+interface DisplayUser {
+    id: string;
+    email: string | undefined;
+    role: string | undefined;
+}
+
+interface DisplayLetter {
+    id: string;
+    title: string;
+    status: string;
+    user_id: string;
 }
 
 const AdminDashboardSkeleton: React.FC = () => (
@@ -33,28 +41,47 @@ const AdminDashboardSkeleton: React.FC = () => (
 );
 
 export const AdminDashboard: React.FC = () => {
-  const [users, setUsers] = useState<Record<string, StoredUser>>({});
-  const [letters] = useState<LetterRequest[]>(MOCK_LETTERS); // Using mock letters for now
+  const [users, setUsers] = useState<DisplayUser[]>([]);
+  const [letters, setLetters] = useState<DisplayLetter[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Simulate network delay for fetching data
-    const timer = setTimeout(() => {
+    const fetchData = async () => {
         try {
-            const storedUsers = JSON.parse(localStorage.getItem(USERS_STORAGE_KEY) || '{}');
-            setUsers(storedUsers);
-        } catch (e) {
-            console.error("Failed to parse users from localStorage", e);
+            const [fetchedUsers, fetchedLetters] = await Promise.all([
+                apiClient.fetchAllUsers(),
+                apiClient.fetchAllLetters()
+            ]);
+            setUsers(fetchedUsers);
+            setLetters(fetchedLetters);
+        } catch (e: any) {
+            console.error("Failed to fetch admin data", e);
+            setError("Could not load admin data. You may not have the required permissions.");
+        } finally {
+            setLoading(false);
         }
-        setLoading(false);
-    }, 1000);
-    return () => clearTimeout(timer);
+    };
+    fetchData();
   }, []);
 
   const adminGradient = { firstColor: "#8B5CF6", secondColor: "#6366F1" }; // Purple/Indigo
   
   if (loading) {
       return <AdminDashboardSkeleton />;
+  }
+
+  if (error) {
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle>Error</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <p className="text-red-500">{error}</p>
+            </CardContent>
+        </Card>
+    )
   }
 
   return (
@@ -76,10 +103,10 @@ export const AdminDashboard: React.FC = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {Object.entries(users).map(([email, userData]) => (
-                        <tr key={email} className="bg-transparent border-b dark:border-gray-700/50 hover:bg-gray-50/50 dark:hover:bg-gray-800/50">
-                          <td className="px-6 py-4 font-medium whitespace-nowrap">{email}</td>
-                          <td className="px-6 py-4 capitalize">{userData.role}</td>
+                      {users.map((user) => (
+                        <tr key={user.id} className="bg-transparent border-b dark:border-gray-700/50 hover:bg-gray-50/50 dark:hover:bg-gray-800/50">
+                          <td className="px-6 py-4 font-medium whitespace-nowrap">{user.email}</td>
+                          <td className="px-6 py-4 capitalize">{user.role || 'User'}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -93,6 +120,7 @@ export const AdminDashboard: React.FC = () => {
       <BlurFade delay={0.35} inView>
         <NeonGradientCard className="w-full" borderRadius={12} neonColors={adminGradient}>
             <Card className="bg-white/95 dark:bg-slate-900/95">
+              {/* FIX: Replaced non-existent 'Header' component with 'CardHeader'. */}
               <CardHeader>
                 <CardTitle>All Letter Requests</CardTitle>
                 <CardDescription>A complete log of all letter requests.</CardDescription>
@@ -112,7 +140,7 @@ export const AdminDashboard: React.FC = () => {
                         <tr key={letter.id} className="bg-transparent border-b dark:border-gray-700/50 hover:bg-gray-50/50 dark:hover:bg-gray-800/50">
                           <td className="px-6 py-4 font-medium whitespace-nowrap">{letter.title}</td>
                           <td className="px-6 py-4 capitalize">{letter.status}</td>
-                          <td className="px-6 py-4">{letter.userId}</td>
+                          <td className="px-6 py-4 truncate max-w-xs">{letter.user_id}</td>
                         </tr>
                       ))}
                     </tbody>
