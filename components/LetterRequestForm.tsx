@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from './Card';
 import { LETTER_TYPE_OPTIONS } from '../constants';
 import { ShinyButton } from './magicui/shiny-button';
+import { ShimmerButton } from './magicui/shimmer-button';
+import { SparklesText } from './magicui/sparkles-text';
 import { generateLetterDraft } from '../services/aiService';
 import type { LetterRequest, LetterType } from '../types';
 
@@ -32,14 +34,33 @@ const LoadingSpinner: React.FC = () => (
     </div>
 );
 
-type NewLetterData = Omit<LetterRequest, 'id' | 'createdAt' | 'updatedAt'>;
+interface LetterRequestFormProps {
+    onFormSubmit: (data: Omit<LetterRequest, 'id' | 'createdAt' | 'updatedAt'> | LetterRequest) => void;
+    onCancel: () => void;
+    letterToEdit?: LetterRequest | null;
+}
 
-export const LetterRequestForm: React.FC<{ onFormSubmit: (data: NewLetterData) => void, onCancel: () => void }> = ({ onFormSubmit, onCancel }) => {
+export const LetterRequestForm: React.FC<LetterRequestFormProps> = ({ onFormSubmit, onCancel, letterToEdit }) => {
     const [title, setTitle] = useState('');
     const [letterType, setLetterType] = useState<LetterType>('demand_letter');
     const [description, setDescription] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+
+    const isEditing = !!letterToEdit;
+
+    useEffect(() => {
+        if (letterToEdit) {
+            setTitle(letterToEdit.title);
+            setLetterType(letterToEdit.letterType);
+            setDescription(letterToEdit.description);
+        } else {
+            // Reset form when switching from edit to create
+            setTitle('');
+            setLetterType('demand_letter');
+            setDescription('');
+        }
+    }, [letterToEdit]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -49,18 +70,29 @@ export const LetterRequestForm: React.FC<{ onFormSubmit: (data: NewLetterData) =
         try {
             const aiGeneratedContent = await generateLetterDraft({ title, letterType, description });
             
-            onFormSubmit({
-                title,
-                letterType,
-                description,
-                aiGeneratedContent,
-                status: 'draft',
-                // Mocking data that would come from user session/db
-                userId: 'user-1',
-                recipientInfo: { name: 'Recipient Name' },
-                senderInfo: { name: 'Your Name' },
-                priority: 'medium',
-            });
+            if (isEditing) {
+                 onFormSubmit({
+                    ...letterToEdit,
+                    title,
+                    letterType,
+                    description,
+                    aiGeneratedContent,
+                    status: 'draft', // Reset to draft on edit
+                });
+            } else {
+                onFormSubmit({
+                    title,
+                    letterType,
+                    description,
+                    aiGeneratedContent,
+                    status: 'draft',
+                    // Mocking data that would come from user session/db
+                    userId: 'user-1',
+                    recipientInfo: { name: 'Recipient Name' },
+                    senderInfo: { name: 'Your Name' },
+                    priority: 'medium',
+                });
+            }
 
         } catch (err) {
             setError(err instanceof Error ? err.message : 'An unknown error occurred.');
@@ -73,8 +105,10 @@ export const LetterRequestForm: React.FC<{ onFormSubmit: (data: NewLetterData) =
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Create New Letter Request</CardTitle>
-                <CardDescription>Fill in the details below to generate a new letter draft with AI.</CardDescription>
+                <CardTitle>
+                    <SparklesText>{isEditing ? 'Edit Letter Request' : 'Create New Letter Request'}</SparklesText>
+                </CardTitle>
+                <CardDescription>{isEditing ? 'Update the details below to regenerate the letter draft.' : 'Fill in the details below to generate a new letter draft with AI.'}</CardDescription>
             </CardHeader>
             <form onSubmit={handleSubmit}>
                 <CardContent className="space-y-6">
@@ -98,12 +132,17 @@ export const LetterRequestForm: React.FC<{ onFormSubmit: (data: NewLetterData) =
                 <CardFooter className="border-t border-gray-200 dark:border-gray-800 px-6 py-4 flex-col items-stretch gap-4">
                     {error && <p className="text-sm text-red-500 text-center">{error}</p>}
                     <div className="flex justify-end space-x-2">
-                        <button type="button" onClick={onCancel} disabled={isLoading} className="px-4 py-2 text-sm font-semibold border dark:border-gray-700 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed">Cancel</button>
-                        <ShinyButton type="submit" disabled={isLoading || !title || !description}>
-                             <span className="relative z-10">
-                                {isLoading ? 'Generating...' : 'Generate AI Draft'}
-                            </span>
-                        </ShinyButton>
+                        <button type="button" onClick={onCancel} disabled={isLoading} className="px-4 py-2 text-sm font-semibold text-gray-800 dark:text-gray-300 border dark:border-gray-700 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed">Cancel</button>
+                        
+                        {isLoading ? (
+                            <ShinyButton disabled>
+                                {isEditing ? 'Updating...' : 'Generating...'}
+                            </ShinyButton>
+                        ) : (
+                            <ShimmerButton type="submit" disabled={!title || !description}>
+                                {isEditing ? 'Update & Regenerate Draft' : 'Generate AI Draft'}
+                            </ShimmerButton>
+                        )}
                     </div>
                 </CardFooter>
             </form>
