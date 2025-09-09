@@ -8,24 +8,8 @@ import { SparklesText } from './magicui/sparkles-text';
 import { generateLetterDraft, LetterTone, LetterLength } from '../services/aiService';
 import { isValidEmail } from '../lib/utils';
 import type { LetterRequest, LetterTemplate } from '../types';
-
-const Label: React.FC<React.LabelHTMLAttributes<HTMLLabelElement>> = ({ className, ...props }) => (
-  <label className={`block text-sm font-medium text-gray-700 dark:text-gray-300 ${className}`} {...props} />
-);
-
-const Input: React.FC<React.InputHTMLAttributes<HTMLInputElement>> = ({ className, ...props }) => (
-  <input className={`mt-1 flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-500 dark:placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${className}`} {...props} />
-);
-
-const Select: React.FC<React.SelectHTMLAttributes<HTMLSelectElement>> = ({ className, children, ...props }) => (
-    <select className={`mt-1 flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-sm ring-offset-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${className}`} {...props}>
-        {children}
-    </select>
-);
-
-const Textarea: React.FC<React.TextareaHTMLAttributes<HTMLTextAreaElement>> = ({ className, ...props }) => (
-    <textarea className={`mt-1 flex min-h-[80px] w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-sm ring-offset-white placeholder:text-gray-500 dark:placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${className}`} {...props} />
-);
+import { Label, Input, Select, Textarea } from './Form';
+import { apiClient } from '../services/apiClient';
 
 const IconDownload: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -80,6 +64,7 @@ export const LetterRequestForm: React.FC<LetterRequestFormProps> = ({ onFormSubm
   const [attorneyEmail, setAttorneyEmail] = useState('');
   const [emailError, setEmailError] = useState<string | null>(null);
   const [sendSuccess, setSendSuccess] = useState(false);
+  const [sendError, setSendError] = useState<string | null>(null);
 
   useEffect(() => {
     if (letterToEdit) {
@@ -157,20 +142,29 @@ export const LetterRequestForm: React.FC<LetterRequestFormProps> = ({ onFormSubm
     }
   };
 
-    const handleSendEmail = (e: React.FormEvent) => {
+    const handleSendEmail = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSending(true);
-        console.log(`Simulating sending email to: ${attorneyEmail} with content: ${aiDraft}`);
-        // Simulate API call
-        setTimeout(() => {
+        setSendError(null);
+        setSendSuccess(false);
+
+        try {
+            await apiClient.sendDraftByEmail({
+                to: attorneyEmail,
+                subject: `Review Draft: ${title || 'Untitled Letter'}`,
+                html: `<p>Please review the following draft:</p><hr>${aiDraft.replace(/\n/g, '<br>')}`
+            });
             setSendSuccess(true);
-            setIsSending(false);
             setTimeout(() => {
                 setShowSendForm(false);
                 setSendSuccess(false);
                 setAttorneyEmail('');
             }, 3000);
-        }, 1000);
+        } catch (err: any) {
+            setSendError(err.message || 'An unexpected error occurred while sending the email.');
+        } finally {
+            setIsSending(false);
+        }
     };
 
     const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -296,7 +290,7 @@ export const LetterRequestForm: React.FC<LetterRequestFormProps> = ({ onFormSubm
                     {isExporting ? 'Exporting...' : 'Export as PDF'}
                 </button>
                 <button 
-                  onClick={() => { setShowSendForm(prev => !prev); setSendSuccess(false); }}
+                  onClick={() => { setShowSendForm(prev => !prev); setSendSuccess(false); setSendError(null); }}
                   disabled={!aiDraft}
                   className="text-sm font-medium px-4 py-2 rounded-md transition-colors border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
@@ -342,6 +336,7 @@ export const LetterRequestForm: React.FC<LetterRequestFormProps> = ({ onFormSubm
                                     'Send'
                                 )}
                             </ShimmerButton>
+                            {sendError && <p className="text-xs text-red-500 mt-1 text-center">{sendError}</p>}
                         </form>
                     )}
                  </div>

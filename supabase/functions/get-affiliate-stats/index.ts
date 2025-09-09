@@ -1,5 +1,5 @@
-// FIX: Replaced the Supabase Edge Function type reference with the correct 'npm:' specifier to resolve Deno runtime type errors.
-/// <reference types="npm:@supabase/functions-js/src/edge-runtime.d.ts" />
+// FIX: Switched CDN to esm.sh to resolve Deno type definition errors.
+/// <reference types="https://esm.sh/@supabase/functions-js@2.4.1/src/edge-runtime.d.ts" />
 
 import { createClient } from '@supabase/supabase-js'
 

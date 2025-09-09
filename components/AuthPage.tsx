@@ -6,23 +6,9 @@ import { ShimmerButton } from './magicui/shimmer-button';
 import { IconLogo } from '../constants';
 import type { UserRole } from '../types';
 import { isValidEmail } from '../lib/utils';
+import { Label, Input, Select } from './Form';
 
 type View = 'login' | 'signup' | 'forgot_password';
-
-const Label: React.FC<React.LabelHTMLAttributes<HTMLLabelElement>> = ({ className, ...props }) => (
-  <label className={`block text-sm font-medium text-gray-700 dark:text-gray-300 ${className}`} {...props} />
-);
-
-const Input: React.FC<React.InputHTMLAttributes<HTMLInputElement>> = ({ className, ...props }) => (
-  <input className={`mt-1 flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-500 dark:placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${className}`} {...props} />
-);
-
-const Select: React.FC<React.SelectHTMLAttributes<HTMLSelectElement>> = ({ className, children, ...props }) => (
-    <select className={`mt-1 flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-sm ring-offset-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${className}`} {...props}>
-        {children}
-    </select>
-);
-
 
 export const AuthPage: React.FC = () => {
   const [view, setView] = useState<View>('login');

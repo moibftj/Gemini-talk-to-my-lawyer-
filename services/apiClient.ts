@@ -179,6 +179,23 @@ const fetchAffiliateStats = async (): Promise<AffiliateStats> => {
     return data;
 };
 
+// --- EMAIL SERVICE API (EDGE FUNCTION) ---
+interface SendDraftEmailPayload {
+    to: string;
+    subject: string;
+    html: string;
+}
+
+const sendDraftByEmail = async (payload: SendDraftEmailPayload): Promise<{ success: boolean; message: string }> => {
+    const { data, error } = await supabase.functions.invoke('send-draft-email', {
+        body: payload,
+    });
+
+    if (error) handleSupabaseError(error, 'sendDraftByEmail function');
+    if (data.error) throw new Error(data.error);
+    return data;
+};
+
 
 export const apiClient = {
     // Letters (Database)
@@ -196,4 +213,7 @@ export const apiClient = {
 
     // Affiliate (Edge Function)
     fetchAffiliateStats,
+    
+    // Email Service (Edge Function)
+    sendDraftByEmail,
 };

@@ -5,6 +5,7 @@ import { ShinyButton } from './magicui/shiny-button';
 import { ShimmerButton } from './magicui/shimmer-button';
 import { IconLogo } from '../constants';
 import { AuthPage } from './AuthPage';
+import { Label, Input } from './Form';
 
 export const ResetPasswordPage: React.FC = () => {
     const [password, setPassword] = useState('');
@@ -56,8 +57,8 @@ export const ResetPasswordPage: React.FC = () => {
             <form onSubmit={handleSubmit}>
               <CardContent className="space-y-4">
                 <div className="space-y-1">
-                  <label htmlFor="password">New Password</label>
-                  <input
+                  <Label htmlFor="password">New Password</Label>
+                  <Input
                     id="password"
                     type="password"
                     required
@@ -65,12 +66,11 @@ export const ResetPasswordPage: React.FC = () => {
                     placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className={`mt-1 flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-500 dark:placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50`}
                   />
                 </div>
                 <div className="space-y-1">
-                  <label htmlFor="confirmPassword">Confirm New Password</label>
-                  <input
+                  <Label htmlFor="confirmPassword">Confirm New Password</Label>
+                  <Input
                     id="confirmPassword"
                     type="password"
                     required
@@ -78,7 +78,6 @@ export const ResetPasswordPage: React.FC = () => {
                     placeholder="••••••••"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className={`mt-1 flex h-10 w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-500 dark:placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50`}
                   />
                 </div>
               </CardContent>
