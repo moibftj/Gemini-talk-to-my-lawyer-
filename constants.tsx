@@ -1,5 +1,5 @@
 import React from 'react';
-import type { LetterRequest, LetterStatus, LetterTemplate } from './types';
+import type { LetterStatus, LetterTemplate } from './types';
 
 export const LETTER_TEMPLATES: LetterTemplate[] = [
     {
@@ -122,54 +122,6 @@ export const STATUS_STYLES: Record<LetterStatus, { bg: string, text: string }> =
   completed: { bg: 'bg-green-100 dark:bg-green-900/50', text: 'text-green-600 dark:text-green-400' },
   cancelled: { bg: 'bg-red-100 dark:bg-red-900/50', text: 'text-red-600 dark:text-red-400' },
 };
-
-export const MOCK_LETTERS: LetterRequest[] = [
-  {
-    id: '1',
-    title: 'Demand for Payment - Invoice #123',
-    letterType: 'general_demand_letter',
-    status: 'in_review',
-    createdAt: '2023-10-26T10:00:00Z',
-    updatedAt: '2023-10-26T12:30:00Z',
-    userId: 'user-1',
-    description: 'A demand for an unpaid invoice from a client.',
-    recipientInfo: { name: 'Client Corp' },
-    senderInfo: { name: 'My Company' },
-    priority: 'medium',
-    templateData: {
-      "Recipient's Full Name": 'Client Corp',
-      "Amount Owed": '5,000',
-      "Reason for Debt": 'Unpaid invoice #123 for consulting services.',
-      "Deadline for Action": 'November 15, 2023',
-    }
-  },
-  {
-    id: '2',
-    title: 'Cease and Desist - Trademark Infringement',
-    letterType: 'cease_and_desist',
-    status: 'completed',
-    createdAt: '2023-10-25T14:00:00Z',
-    updatedAt: '2023-10-27T09:00:00Z',
-    userId: 'user-1',
-    description: 'Letter to a competitor for using our trademarked logo.',
-    recipientInfo: { name: 'Competitor Inc.' },
-    senderInfo: { name: 'My Company' },
-    priority: 'high',
-  },
-  {
-    id: '3',
-    title: 'Notice of Breach of Contract',
-    letterType: 'breach_of_contract',
-    status: 'draft',
-    createdAt: '2023-10-27T11:00:00Z',
-    updatedAt: '2023-10-27T11:00:00Z',
-    userId: 'user-1',
-    description: 'Initial draft for a supplier failing to meet delivery deadlines.',
-    recipientInfo: { name: 'Supplier LLC' },
-    senderInfo: { name: 'My Company' },
-    priority: 'medium',
-  }
-];
 
 // Icons
 export const IconFilePlus: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (

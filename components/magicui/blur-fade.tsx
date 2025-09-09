@@ -9,6 +9,8 @@ import {
 } from "framer-motion";
 import { cn } from '../../lib/utils';
 
+type MarginType = UseInViewOptions["margin"];
+
 interface BlurFadeProps extends MotionProps {
   children: React.ReactNode;
   className?: string;
@@ -21,11 +23,11 @@ interface BlurFadeProps extends MotionProps {
   offset?: number;
   direction?: "up" | "down" | "left" | "right";
   inView?: boolean;
-  inViewMargin?: string;
+  inViewMargin?: MarginType;
   blur?: string;
 }
 
-export const BlurFade: React.FC<BlurFadeProps> = ({
+export function BlurFade({
   children,
   className,
   variant,
@@ -37,12 +39,9 @@ export const BlurFade: React.FC<BlurFadeProps> = ({
   inViewMargin = "-50px",
   blur = "6px",
   ...props
-}) => {
+}: BlurFadeProps) {
   const ref = useRef(null);
-  const inViewResult = useInView(ref, {
-    once: true,
-    margin: inViewMargin as UseInViewOptions["margin"],
-  });
+  const inViewResult = useInView(ref, { once: true, margin: inViewMargin });
   const isInView = !inView || inViewResult;
   const defaultVariants: Variants = {
     hidden: {
@@ -78,4 +77,4 @@ export const BlurFade: React.FC<BlurFadeProps> = ({
       </motion.div>
     </AnimatePresence>
   );
-};
+}

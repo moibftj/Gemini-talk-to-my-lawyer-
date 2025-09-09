@@ -1,5 +1,5 @@
-// FIX: Use a lib reference to include Deno types, which is more robust than a URL.
-/// <reference lib="deno.ns" />
+// FIX: Replaced unsupported 'lib' reference with a 'types' reference to a stable Deno types URL to resolve TypeScript errors.
+/// <reference types="https://raw.githubusercontent.com/denoland/deno/v1.40.2/cli/dts/lib.deno.ns.d.ts" />
 
 // Follow this guide to deploy the function to your Supabase project:
 // https://supabase.com/docs/guides/functions/deploy
