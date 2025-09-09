@@ -1,5 +1,5 @@
-// FIX: Replaced unsupported 'lib' reference with a 'types' reference to a stable Deno types URL to resolve TypeScript errors.
-/// <reference types="https://raw.githubusercontent.com/denoland/deno/v1.40.2/cli/dts/lib.deno.ns.d.ts" />
+// FIX: Replaced the Supabase Edge Function type reference with the correct 'npm:' specifier to resolve Deno runtime type errors.
+/// <reference types="npm:@supabase/functions-js/src/edge-runtime.d.ts" />
 
 // Follow this guide to deploy the function to your Supabase project:
 // https://supabase.com/docs/guides/functions/deploy

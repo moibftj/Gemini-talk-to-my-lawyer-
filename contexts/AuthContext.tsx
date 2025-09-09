@@ -75,7 +75,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const login = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) throw error;
+    if (error) {
+        if (error.message === 'Invalid login credentials') {
+            throw new Error('Invalid email or password. Please check your credentials and try again.');
+        }
+        throw new Error(error.message);
+    }
   };
 
   const signup = async (email: string, password: string, role: UserRole, affiliateCode?: string) => {
@@ -92,7 +97,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             }
         }
     });
-    if (error) throw error;
+    if (error) {
+        if (error.message.includes('User already registered')) {
+            throw new Error('An account with this email already exists. Please try signing in.');
+        }
+        if (error.message.includes('Password should be at least 6 characters')) {
+            throw new Error('Password must be at least 6 characters long.');
+        }
+        throw new Error(error.message);
+    }
     // The user will be signed in after confirming their email.
     // The onAuthStateChange listener will handle the session and profile fetching.
   };
@@ -106,12 +119,22 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: window.location.origin, // Supabase handles the token in the URL
     });
-    if (error) throw error;
+    if (error) {
+        if (error.message.includes('Email rate limit exceeded')) {
+            throw new Error('Too many requests. Please wait a moment before trying again.');
+        }
+        throw error;
+    }
   };
 
   const updateUserPassword = async (password: string) => {
     const { error } = await supabase.auth.updateUser({ password });
-    if (error) throw error;
+    if (error) {
+        if (error.message.includes('same as the old password')) {
+            throw new Error('New password must be different from the old password.');
+        }
+        throw error;
+    }
   };
 
   return (

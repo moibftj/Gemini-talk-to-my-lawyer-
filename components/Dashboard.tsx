@@ -124,15 +124,18 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({ currentView, setCu
     const [editingLetter, setEditingLetter] = useState<LetterRequest | null>(null);
     const [isDeletingId, setIsDeletingId] = useState<string | null>(null);
     const [letterToDeleteId, setLetterToDeleteId] = useState<string | null>(null);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         const loadLetters = async () => {
             setIsLoading(true);
+            setError(null);
             try {
                 const fetchedLetters = await apiClient.fetchLetters();
                 setLetters(fetchedLetters);
-            } catch (error) {
-                console.error("Failed to fetch letters:", error);
+            } catch (err: any) {
+                console.error("Failed to fetch letters:", err);
+                setError(err.message || 'An unexpected error occurred while loading your letters.');
             } finally {
                 setIsLoading(false);
             }
@@ -142,7 +145,10 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({ currentView, setCu
         }
     }, [currentView]);
   
-    const navigateTo = (view: View) => setCurrentView(view);
+    const navigateTo = (view: View) => {
+        setError(null);
+        setCurrentView(view);
+    };
   
     const handleEditLetter = (letter: LetterRequest) => {
       setEditingLetter(letter);
@@ -150,17 +156,20 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({ currentView, setCu
     };
 
     const handleDeleteRequest = (id: string) => {
+        setError(null);
         setLetterToDeleteId(id);
     };
 
     const handleConfirmDelete = async () => {
         if (!letterToDeleteId) return;
         setIsDeletingId(letterToDeleteId);
+        setError(null);
         try {
             await apiClient.deleteLetter(letterToDeleteId);
             setLetters(prevLetters => prevLetters.filter(l => l.id !== letterToDeleteId));
-        } catch (error) {
-            console.error("Failed to delete letter:", error);
+        } catch (err: any) {
+            console.error("Failed to delete letter:", err);
+            setError(err.message || 'An unexpected error occurred while deleting the letter.');
         } finally {
             setIsDeletingId(null);
             setLetterToDeleteId(null);
@@ -177,15 +186,19 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({ currentView, setCu
     };
   
     const handleSaveLetter = async (letterData: Partial<LetterRequest>) => {
-      if (letterData.id) {
-        // Update existing letter
-        await apiClient.updateLetter(letterData as LetterRequest);
-      } else {
-        // Create new letter
-        await apiClient.createLetter(letterData);
+      try {
+          if (letterData.id) {
+            await apiClient.updateLetter(letterData as LetterRequest);
+          } else {
+            await apiClient.createLetter(letterData);
+          }
+          setEditingLetter(null);
+          navigateTo('dashboard');
+      } catch (err) {
+          // Re-throw the error so the calling component (LetterRequestForm) can catch and display it.
+          console.error('Error saving letter:', err);
+          throw err;
       }
-      setEditingLetter(null);
-      navigateTo('dashboard');
     };
 
   if (currentView === 'new_letter_form') {
@@ -200,6 +213,11 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({ currentView, setCu
   
   return (
     <>
+      {error && (
+        <div className="mb-4 rounded-lg bg-red-100 p-4 text-sm text-red-700 dark:bg-red-900/30 dark:text-red-400" role="alert">
+          <span className="font-semibold">Error:</span> {error}
+        </div>
+      )}
       {isLoading ? (
         <LetterListSkeleton />
       ) : (

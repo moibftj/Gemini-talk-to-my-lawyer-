@@ -1,5 +1,5 @@
-// FIX: Replaced unsupported 'lib' reference with a 'types' reference to a stable Deno types URL to resolve TypeScript errors.
-/// <reference types="https://raw.githubusercontent.com/denoland/deno/v1.40.2/cli/dts/lib.deno.ns.d.ts" />
+// FIX: Replaced the Supabase Edge Function type reference with the correct 'npm:' specifier to resolve Deno runtime type errors.
+/// <reference types="npm:@supabase/functions-js/src/edge-runtime.d.ts" />
 
 // Follow this guide to deploy the function to your Supabase project:
 // https://supabase.com/docs/guides/functions/deploy
@@ -41,6 +41,16 @@ Deno.serve(async (req) => {
     const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
     const model = "gemini-2.5-flash";
 
+    const systemInstruction = `You are an expert legal assistant. Your primary task is to complete a given letter template using user-provided details.
+
+Follow these instructions strictly:
+1.  Carefully replace the placeholders (e.g., [Your Name], [Amount Owed]) in the template with the corresponding user-provided details.
+2.  If a detail for a placeholder is not provided, you MUST replace it with a clear indicator like "[Information Not Provided]" in the final letter. Do not leave the original placeholder (e.g., [Amount Owed]) in the text.
+3.  Incorporate the "Additional Context" where it seems most relevant within the letter body to add necessary detail or clarify points.
+4.  Ensure the final letter flows naturally and is grammatically correct after filling in the details.
+5.  Adhere strictly to any provided Tone & Style instructions when filling in the template.
+6.  Your entire response should be ONLY the completed body of the letter. Do not include a subject line, greetings, sign-offs, or explanations outside of the letter's content itself.`;
+
     let styleInstructions = '';
     if (payload.tone || payload.length) {
         styleInstructions += '\n**Tone & Style Instructions:**\n';
@@ -56,8 +66,8 @@ Deno.serve(async (req) => {
         }
     }
 
-    const prompt = `
-        You are an expert legal assistant. Your task is to complete the following letter template using the user-provided details.
+    const userPrompt = `
+        Please complete the letter.
         The letter's subject is "${payload.title}".
         **Template to complete:**
         ---
@@ -68,17 +78,16 @@ Deno.serve(async (req) => {
         **Additional Context from the user (incorporate this where relevant):**
         ${payload.additionalContext || 'No additional context provided.'}
         ${styleInstructions}
-        **Instructions:**
-        1.  Carefully replace the placeholders (e.g., [Your Name], [Amount Owed]) in the template with the corresponding user-provided details.
-        2.  If a detail for a placeholder is not provided, you MUST replace it with a clear indicator like "[Information Not Provided]" in the final letter. Do not leave the original placeholder (e.g., [Amount Owed]) in the text.
-        3.  Incorporate the "Additional Context" where it seems most relevant within the letter body to add necessary detail or clarify points.
-        4.  Ensure the final letter flows naturally and is grammatically correct after filling in the details.
-        5.  Adhere strictly to the Tone & Style instructions when filling in the template.
-        6.  The entire response should be ONLY the completed body of the letter. Do not include a subject line, greetings, sign-offs, or explanations outside of the letter's content itself.
     `;
 
     // 5. Call the Gemini API
-    const response = await ai.models.generateContent({ model, contents: prompt });
+    const response = await ai.models.generateContent({
+      model,
+      contents: userPrompt,
+      config: {
+        systemInstruction,
+      },
+    });
     const draft = response.text;
 
     // 6. Return the successful response

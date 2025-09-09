@@ -136,6 +136,7 @@ export const LetterRequestForm: React.FC<LetterRequestFormProps> = ({ onFormSubm
   const handleSaveLetter = async () => {
     if (!selectedTemplate) return;
     setIsSaving(true);
+    setError(null); // Clear previous errors
     try {
         const letterData: Partial<LetterRequest> = {
             id: letterToEdit?.id, // Keep id if editing
@@ -148,9 +149,9 @@ export const LetterRequestForm: React.FC<LetterRequestFormProps> = ({ onFormSubm
             priority: letterToEdit?.priority || 'medium',
         };
         await onFormSubmit(letterData);
-    } catch (error) {
-        console.error("Failed to save letter:", error);
-        setError("Could not save the letter. Please try again.");
+    } catch (err: any) {
+        console.error("Failed to save letter:", err);
+        setError(err.message || "Could not save the letter. An unexpected error occurred.");
     } finally {
         setIsSaving(false);
     }
