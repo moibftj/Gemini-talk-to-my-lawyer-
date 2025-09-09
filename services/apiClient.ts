@@ -7,7 +7,40 @@ import type { LetterTone, LetterLength } from './aiService';
 
 const handleSupabaseError = (error: any, context: string) => {
     console.error(`Error in ${context}:`, error);
-    throw new Error(error.message || `An unknown error occurred in ${context}.`);
+    
+    // Handle specific error types for better UX
+    if (error.code === 'PGRST301') {
+        throw new Error('Access denied. Please check your permissions.');
+    }
+    if (error.code === '23505') {
+        throw new Error('This item already exists.');
+    }
+    if (error.message?.includes('JWT')) {
+        throw new Error('Your session has expired. Please sign in again.');
+    }
+    if (error.message?.includes('network') || error.message?.includes('fetch')) {
+        throw new Error('Network error. Please check your connection and try again.');
+    }
+    
+    throw new Error(error.message || `An unexpected error occurred in ${context}.`);
+};
+
+// Retry utility for handling transient network errors
+const withRetry = async <T>(fn: () => Promise<T>, retries = 3, delay = 1000): Promise<T> => {
+    try {
+        return await fn();
+    } catch (error: any) {
+        if (retries > 0 && (
+            error.message?.includes('network') || 
+            error.message?.includes('fetch') ||
+            error.code === 'ECONNRESET' ||
+            error.code === 'ETIMEDOUT'
+        )) {
+            await new Promise(resolve => setTimeout(resolve, delay));
+            return withRetry(fn, retries - 1, delay * 1.5);
+        }
+        throw error;
+    }
 };
 
 // Helper to map Supabase's snake_case to our app's camelCase
@@ -34,17 +67,19 @@ const mapLetterFromSupabase = (l: any): LetterRequest => ({
 // --- LETTERS API (DATABASE) ---
 
 const fetchLetters = async (): Promise<LetterRequest[]> => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) throw new Error("User not authenticated");
+    return withRetry(async () => {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error("User not authenticated");
 
-    const { data, error } = await supabase
-        .from('letters')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
+        const { data, error } = await supabase
+            .from('letters')
+            .select('*')
+            .eq('user_id', user.id)
+            .order('created_at', { ascending: false });
 
-    if (error) handleSupabaseError(error, 'fetchLetters');
-    return (data || []).map(mapLetterFromSupabase);
+        if (error) handleSupabaseError(error, 'fetchLetters');
+        return (data || []).map(mapLetterFromSupabase);
+    });
 };
 
 const createLetter = async (letterData: Partial<LetterRequest>): Promise<LetterRequest> => {
