@@ -4,7 +4,7 @@
 // Follow this guide to deploy the function to your Supabase project:
 // https://supabase.com/docs/guides/functions/deploy
 
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenAI } from "https://esm.sh/@google/genai@1.19.0";
 
 // Define interfaces for type safety
 interface GenerateDraftPayload {
