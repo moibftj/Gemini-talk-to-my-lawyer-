@@ -108,26 +108,3 @@ Follow these instructions strictly:
     });
   }
 });
-
-      model,
-      contents: userPrompt,
-      config: {
-        systemInstruction,
-      },
-    });
-    const draft = response.text;
-
-    // 6. Return the successful response
-    return new Response(JSON.stringify({ draft }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      status: 200,
-    });
-
-  } catch (error) {
-    // 7. Handle any errors
-    return new Response(JSON.stringify({ error: error.message }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      status: 500,
-    });
-  }
-});
