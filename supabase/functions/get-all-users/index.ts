@@ -4,7 +4,7 @@
 // Follow this guide to deploy the function to your Supabase project:
 // https://supabase.com/docs/guides/functions/deploy
 
-import { createClient } from '@supabase/supabase-js'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.44.4'
 
 Deno.serve(async (req) => {
   const corsHeaders = {
