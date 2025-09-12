@@ -12,7 +12,7 @@ import { UserDashboard } from './components/Dashboard';
 import { EmployeeDashboard } from './components/ProjectRoadmap';
 import { AdminDashboard } from './components/DatabasePlan';
 import { ResetPasswordPage } from './components/ResetPasswordPage';
-import { EmailConfirmationPage } from './components/EmailConfirmationPage';
+import { EmailConfirmationPage } from './components/EmailConfirmationPage.tsx';
 
 type UserDashboardView = 'dashboard' | 'new_letter_form';
 
