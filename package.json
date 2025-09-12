@@ -19,9 +19,9 @@
     "tailwind-merge": "2.4.0"
   },
   "devDependencies": {
-    "@types/node": "^22.14.0",
     "@supabase/supabase-js": "^2.44.4",
-    "supabase": "^1.200.3",
+    "@types/node": "^22.14.0",
+    "supabase": "^1.226.4",
     "typescript": "~5.8.2",
     "vite": "^6.2.0"
   }
