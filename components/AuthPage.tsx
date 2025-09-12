@@ -49,29 +49,7 @@ export const AuthPage: React.FC = () => {
         setSuccessMessage("If an account with that email exists, a password reset link has been sent.");
       }
     } catch (err: any) {
-      let errorMessage = err.message;
-      
-      // Parse Supabase error messages that contain nested JSON
-      if (errorMessage && errorMessage.startsWith('Supabase request failed')) {
-        try {
-          // Extract JSON from the error message
-          const jsonMatch = errorMessage.match(/\{.*\}$/);
-          if (jsonMatch) {
-            const errorData = JSON.parse(jsonMatch[0]);
-            if (errorData.body) {
-              const bodyData = JSON.parse(errorData.body);
-              if (bodyData.message) {
-                errorMessage = bodyData.message;
-              }
-            }
-          }
-        } catch (parseError) {
-          // If parsing fails, use the original message
-          console.error('Failed to parse error message:', parseError);
-        }
-      }
-      
-      setError(errorMessage);
+      setError(err.message);
     } finally {
       setLoading(false);
     }
