@@ -37,6 +37,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setAuthEvent(event);
         if (event === 'SIGNED_IN' && session) {
           await handleAuthSession(session);
+        } else if (event === 'TOKEN_REFRESHED' && session) {
+          await handleAuthSession(session);
         } else if (event === 'SIGNED_OUT') {
           setUser(null);
         } else if (event === 'PASSWORD_RECOVERY') {
