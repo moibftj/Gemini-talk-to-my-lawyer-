@@ -44,6 +44,7 @@ export const AuthPage: React.FC = () => {
         await login(email, password);
       } else if (view === 'signup') {
         await signup(email, password, role, affiliateCode);
+        setSuccessMessage("Account created successfully! Please check your email to confirm your account before signing in.");
       } else { // forgot_password
         await requestPasswordReset(email);
         setSuccessMessage("If an account with that email exists, a password reset link has been sent.");

@@ -37,6 +37,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setAuthEvent(event);
         if (event === 'SIGNED_IN' && session) {
           await handleAuthSession(session);
+        } else if (event === 'TOKEN_REFRESHED' && session) {
+          await handleAuthSession(session);
         } else if (event === 'SIGNED_OUT') {
           setUser(null);
         } else if (event === 'PASSWORD_RECOVERY') {
@@ -73,13 +75,50 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return data as { role: UserRole };
   };
 
+  const parseSupabaseError = (error: any): string => {
+    let errorMessage = error.message;
+    
+    // Parse Supabase error messages that contain nested JSON
+    if (errorMessage && errorMessage.startsWith('Supabase request failed')) {
+      try {
+        // Extract JSON from the error message
+        const jsonMatch = errorMessage.match(/\{.*\}$/);
+        if (jsonMatch) {
+          const errorData = JSON.parse(jsonMatch[0]);
+          if (errorData.body) {
+            const bodyData = JSON.parse(errorData.body);
+            if (bodyData.message) {
+              errorMessage = bodyData.message;
+            }
+          }
+        }
+      } catch (parseError) {
+        // If parsing fails, use the original message
+        console.error('Failed to parse error message:', parseError);
+      }
+    }
+    
+    // Convert common error messages to user-friendly versions
+    if (errorMessage === 'Invalid login credentials') {
+      return 'Invalid email or password. Please check your credentials and try again.';
+    }
+    if (errorMessage.includes('User already registered')) {
+      return 'An account with this email already exists. Please try signing in.';
+    }
+    if (errorMessage.includes('Password should be at least 6 characters')) {
+      return 'Password must be at least 6 characters long.';
+    }
+    if (errorMessage.includes('Email rate limit exceeded') || errorMessage.includes('you can only request this after')) {
+      return errorMessage; // Keep rate limit messages as-is since they're already user-friendly
+    }
+    
+    return errorMessage;
+  };
+
   const login = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
-        if (error.message === 'Invalid login credentials') {
-            throw new Error('Invalid email or password. Please check your credentials and try again.');
-        }
-        throw new Error(error.message);
+        throw new Error(parseSupabaseError(error));
     }
   };
 
@@ -98,13 +137,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         }
     });
     if (error) {
-        if (error.message.includes('User already registered')) {
-            throw new Error('An account with this email already exists. Please try signing in.');
-        }
-        if (error.message.includes('Password should be at least 6 characters')) {
-            throw new Error('Password must be at least 6 characters long.');
-        }
-        throw new Error(error.message);
+        throw new Error(parseSupabaseError(error));
     }
     // The user will be signed in after confirming their email.
     // The onAuthStateChange listener will handle the session and profile fetching.
@@ -120,20 +153,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       redirectTo: window.location.origin, // Supabase handles the token in the URL
     });
     if (error) {
-        if (error.message.includes('Email rate limit exceeded')) {
-            throw new Error('Too many requests. Please wait a moment before trying again.');
-        }
-        throw error;
+        throw new Error(parseSupabaseError(error));
     }
   };
 
   const updateUserPassword = async (password: string) => {
     const { error } = await supabase.auth.updateUser({ password });
     if (error) {
-        if (error.message.includes('same as the old password')) {
-            throw new Error('New password must be different from the old password.');
-        }
-        throw error;
+        throw new Error(parseSupabaseError(error));
     }
   };
 

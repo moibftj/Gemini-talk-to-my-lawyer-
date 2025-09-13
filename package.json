@@ -9,17 +9,18 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@google/genai": "^1.19.0",
+    "@supabase/supabase-js": "2.44.4",
+    "clsx": "2.1.1",
+    "framer-motion": "^12.0.0",
+    "jspdf": "2.5.1",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
-    "clsx": "2.1.1",
-    "tailwind-merge": "2.4.0",
-    "framer-motion": "11.3.8",
-    "jspdf": "2.5.1",
-    "@supabase/supabase-js": "2.44.4",
-    "@google/genai": "^1.19.0"
+    "tailwind-merge": "2.4.0"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",
+    "supabase": "^1.200.3",
     "typescript": "~5.8.2",
     "vite": "^6.2.0"
   }

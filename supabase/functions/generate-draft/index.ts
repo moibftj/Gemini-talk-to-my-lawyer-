@@ -1,10 +1,5 @@
-// FIX: Switched CDN to esm.sh to resolve Deno type definition errors.
-/// <reference types="https://esm.sh/@supabase/functions-js@2.4.1/src/edge-runtime.d.ts" />
-
-// Follow this guide to deploy the function to your Supabase project:
-// https://supabase.com/docs/guides/functions/deploy
-
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenAI } from "https://esm.sh/@google/genai@1.19.0";
+import { corsHeaders, handleCors } from "../_shared/cors.ts";
 
 // Define interfaces for type safety
 interface GenerateDraftPayload {
@@ -17,29 +12,28 @@ interface GenerateDraftPayload {
 }
 
 Deno.serve(async (req) => {
-  // 1. Set up CORS headers
-  const corsHeaders = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  };
-
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
-  }
+  // Handle CORS
+  const corsResponse = handleCors(req);
+  if (corsResponse) return corsResponse;
 
   try {
-    // 2. Get the payload from the request body
+    // Get the payload from the request body
     const payload: GenerateDraftPayload = await req.json();
     
-    // 3. SECURELY get the Gemini API key from Supabase secrets
+    // Validate required fields
+    if (!payload.title || !payload.templateBody) {
+      throw new Error("Missing required fields: title and templateBody");
+    }
+    
+    // SECURELY get the Gemini API key from Supabase secrets
     const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
     if (!GEMINI_API_KEY) {
       throw new Error("GEMINI_API_KEY environment variable not set.");
     }
 
-    // 4. Initialize the Gemini client and build the prompt
+    // Initialize the Gemini client and build the prompt
     const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
-    const model = "gemini-2.5-flash";
+    const model = "gemini-1.5-flash";
 
     const systemInstruction = `You are an expert legal assistant. Your primary task is to complete a given letter template using user-provided details.
 
@@ -80,25 +74,35 @@ Follow these instructions strictly:
         ${styleInstructions}
     `;
 
-    // 5. Call the Gemini API
-    const response = await ai.models.generateContent({
-      model,
-      contents: userPrompt,
-      config: {
-        systemInstruction,
-      },
+    // Call the Gemini API
+    const genModel = ai.getGenerativeModel({ model });
+    const response = await genModel.generateContent({
+      contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
+      systemInstruction: { parts: [{ text: systemInstruction }] },
     });
-    const draft = response.text;
+    
+    if (!response.response) {
+      throw new Error("No response from AI model");
+    }
+    
+    const draft = response.response.text();
+    
+    if (!draft) {
+      throw new Error("Empty response from AI model");
+    }
 
-    // 6. Return the successful response
+    // Return the successful response
     return new Response(JSON.stringify({ draft }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 200,
     });
 
   } catch (error) {
-    // 7. Handle any errors
-    return new Response(JSON.stringify({ error: error.message }), {
+    console.error('Error in generate-draft function:', error);
+    // Handle any errors
+    return new Response(JSON.stringify({ 
+      error: error.message || "An unexpected error occurred while generating the draft" 
+    }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 500,
     });
