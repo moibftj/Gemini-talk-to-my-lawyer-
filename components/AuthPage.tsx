@@ -44,7 +44,7 @@ export const AuthPage: React.FC = () => {
         await login(email, password);
       } else if (view === 'signup') {
         await signup(email, password, role, affiliateCode);
-        setSuccessMessage("Account created successfully! Please check your email to confirm your account before signing in.");
+        setSuccessMessage("Check Email For Confirmation Link");
       } else { // forgot_password
         await requestPasswordReset(email);
         setSuccessMessage("If an account with that email exists, a password reset link has been sent.");
@@ -91,7 +91,6 @@ export const AuthPage: React.FC = () => {
                     <CardFooter className="flex flex-col gap-4">
                         {error && <p className="text-sm text-red-500 text-center">{error}</p>}
                         {successMessage && <p className="text-sm text-green-600 dark:text-green-500 text-center">{successMessage}</p>}
-                        
                         {loading ? (
                             <ShinyButton disabled className="w-full">Processing...</ShinyButton>
                         ) : (
@@ -99,7 +98,6 @@ export const AuthPage: React.FC = () => {
                                 Send Reset Link
                             </ShimmerButton>
                         )}
-
                         <button type="button" onClick={() => switchView('login')} className="text-sm text-blue-600 hover:underline dark:text-blue-400">
                             Back to Sign In
                         </button>
@@ -172,7 +170,11 @@ export const AuthPage: React.FC = () => {
               </CardContent>
               <CardFooter className="flex flex-col gap-4">
                 {error && <p className="text-sm text-red-500 text-center">{error}</p>}
-                
+                {successMessage && (
+                  <div className="rounded bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 px-3 py-2 text-center text-sm font-medium">
+                    {successMessage}
+                  </div>
+                )}
                 {loading ? (
                     <ShinyButton disabled className="w-full">
                         Processing...
@@ -182,7 +184,6 @@ export const AuthPage: React.FC = () => {
                         {view === 'login' ? 'Sign In' : 'Sign Up'}
                     </ShimmerButton>
                 )}
-
                 <button
                   type="button"
                   onClick={() => switchView(view === 'login' ? 'signup' : 'login')}
