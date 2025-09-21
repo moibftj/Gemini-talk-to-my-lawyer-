@@ -140,7 +140,7 @@ export const LetterRequestForm: React.FC<LetterRequestFormProps> = ({ onFormSubm
     setUploadError(null);
 
     try {
-      const uploadPromises = Array.from(files).map(async (file) => {
+      const uploadPromises = Array.from(files).map(async (file: File) => {
         const result = await storageService.uploadFile(file, user.email);
         return {
           name: file.name,

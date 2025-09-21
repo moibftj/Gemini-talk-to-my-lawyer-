@@ -106,9 +106,11 @@ const LetterList: React.FC<{ letters: LetterRequest[], onNewLetterClick: () => v
             <div className="border-t border-gray-200 dark:border-gray-800">
                 {letters.length > 0 ? (
                     letters.map((letter, idx) => (
-                        <BlurFade key={letter.id} delay={0.25 + idx * 0.05} inView>
-                            <LetterRow letter={letter} onEdit={onEditLetterClick} onDelete={onDeleteLetter} isDeleting={isDeletingId === letter.id} />
-                        </BlurFade>
+                        <div key={letter.id}>
+                            <BlurFade delay={0.25 + idx * 0.05} inView>
+                                <LetterRow letter={letter} onEdit={onEditLetterClick} onDelete={onDeleteLetter} isDeleting={isDeletingId === letter.id} />
+                            </BlurFade>
+                        </div>
                     ))
                 ) : (
                     <BlurFade delay={0.25} inView>
