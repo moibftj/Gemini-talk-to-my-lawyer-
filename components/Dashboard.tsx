@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from './Card';
 import { STATUS_STYLES, IconFilePlus, IconEdit, IconTrash, getTemplateLabel, IconSpinner } from '../constants';
 import { ShimmerButton } from './magicui/shimmer-button';
@@ -94,9 +95,11 @@ const LetterList: React.FC<{ letters: LetterRequest[], onNewLetterClick: () => v
             <div className="border-t border-gray-200 dark:border-gray-800">
                 {letters.length > 0 ? (
                     letters.map((letter, idx) => (
-                        <BlurFade key={letter.id} delay={0.25 + idx * 0.05} inView>
-                            <LetterRow letter={letter} onEdit={onEditLetterClick} onDelete={onDeleteLetter} isDeleting={isDeletingId === letter.id} />
-                        </BlurFade>
+                        <React.Fragment key={letter.id}>
+                            <BlurFade delay={0.25 + idx * 0.05} inView>
+                                <LetterRow letter={letter} onEdit={onEditLetterClick} onDelete={onDeleteLetter} isDeleting={isDeletingId === letter.id} />
+                            </BlurFade>
+                        </React.Fragment>
                     ))
                 ) : (
                     <BlurFade delay={0.25} inView>
