@@ -1,4 +1,3 @@
-import supabase from './supabase';
 import type { LetterRequest, LetterTone, LetterLength } from '../types';
 import supabase from './supabase';
 
