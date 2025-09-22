@@ -1,6 +1,5 @@
 import supabase from './supabase';
-import type { LetterRequest } from '../types';
-import type { LetterTone, LetterLength } from './aiService';
+import type { LetterRequest, LetterTone, LetterLength } from '../types';
 import supabase from './supabase';
 
 // This file is the single source of truth for all frontend-to-backend communication.
