@@ -1,6 +1,4 @@
 import { apiClient } from './apiClient';
-
-import { apiClient } from './apiClient';
 import type { LetterTone, LetterLength } from '../types';
 export type { LetterTone, LetterLength } from '../types';
 
