@@ -1,5 +1,7 @@
-// FIX: Switched CDN to esm.sh to resolve Deno type definition errors.
+// FIX: Add Deno types reference to resolve errors with Deno.env.
 /// <reference types="https://esm.sh/@supabase/functions-js@2.4.1/src/edge-runtime.d.ts" />
+
+import { serve } from "https://deno.land/std@0.201.0/http/server.ts";
 
 interface EmailPayload {
   to: string;
@@ -13,7 +15,7 @@ interface EmailPayload {
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 const FROM_EMAIL = Deno.env.get("FROM_EMAIL"); 
 
-Deno.serve(async (req) => {
+serve(async (req) => {
   const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',

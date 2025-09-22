@@ -1,9 +1,11 @@
-// FIX: Switched CDN to esm.sh to resolve Deno type definition errors.
+// FIX: Add Deno types reference to resolve errors with Deno.env.
 /// <reference types="https://esm.sh/@supabase/functions-js@2.4.1/src/edge-runtime.d.ts" />
 
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.44.4'
+import { serve } from "https://deno.land/std@0.201.0/http/server.ts";
 
-Deno.serve(async (req) => {
+import { createClient } from '@supabase/supabase-js'
+
+serve(async (req) => {
   const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',

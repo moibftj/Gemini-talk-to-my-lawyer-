@@ -12,29 +12,12 @@ import { UserDashboard } from './components/Dashboard';
 import { EmployeeDashboard } from './components/ProjectRoadmap';
 import { AdminDashboard } from './components/DatabasePlan';
 import { ResetPasswordPage } from './components/ResetPasswordPage';
-import { EmailConfirmationPage } from './components/EmailConfirmationPage.tsx';
 
 type UserDashboardView = 'dashboard' | 'new_letter_form';
 
 const App: React.FC = () => {
   const { user, isLoading, authEvent } = useAuth();
   const [userDashboardView, setUserDashboardView] = useState<UserDashboardView>('dashboard');
-  const [showEmailConfirmation, setShowEmailConfirmation] = useState(false);
-
-  useEffect(() => {
-    // Check if user just confirmed their email
-    const urlParams = new URLSearchParams(window.location.search);
-    const accessToken = urlParams.get('access_token');
-    const type = urlParams.get('type');
-    
-    if (accessToken && type === 'signup') {
-      setShowEmailConfirmation(true);
-      // Clean up URL
-      window.history.replaceState({}, document.title, window.location.pathname);
-      // Auto-hide after 3 seconds
-      setTimeout(() => setShowEmailConfirmation(false), 3000);
-    }
-  }, []);
 
   if (isLoading) {
     return <Spinner />;
@@ -46,10 +29,6 @@ const App: React.FC = () => {
     return <ResetPasswordPage />;
   }
 
-  // Show email confirmation success message
-  if (showEmailConfirmation) {
-    return <EmailConfirmationPage onContinue={() => setShowEmailConfirmation(false)} />;
-  }
   if (!user) {
     return <AuthPage />;
   }

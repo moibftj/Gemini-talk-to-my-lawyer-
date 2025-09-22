@@ -10,12 +10,6 @@ import type { LetterRequest } from '../types';
 import { Tooltip } from './Tooltip';
 import { ConfirmationModal } from './ConfirmationModal';
 
-const IconPaperclip: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
-  <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48" />
-  </svg>
-);
-
 type View = 'dashboard' | 'new_letter_form';
 
 const LetterListSkeleton: React.FC = () => (
@@ -54,12 +48,6 @@ const LetterRow: React.FC<{ letter: LetterRequest; onEdit: (letter: LetterReques
         <p className="font-semibold text-gray-900 dark:text-white truncate">{letter.title}</p>
         <p className="text-sm text-gray-500 dark:text-gray-400 capitalize">
           {getTemplateLabel(letter.letterType)}
-          {letter.attachments && letter.attachments.length > 0 && (
-            <span className="inline-flex items-center gap-1 ml-2">
-              <IconPaperclip className="h-3 w-3" />
-              <span className="text-xs">({letter.attachments.length})</span>
-            </span>
-          )}
         </p>
       </div>
       <div className="flex items-center space-x-2 ml-4">

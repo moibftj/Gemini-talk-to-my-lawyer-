@@ -10,20 +10,12 @@ import { isValidEmail } from '../lib/utils';
 import type { LetterRequest, LetterTemplate } from '../types';
 import { Label, Input, Select, Textarea } from './Form';
 import { apiClient } from '../services/apiClient';
-import { storageService } from '../services/storageService';
-import { useAuth } from '../contexts/AuthContext';
 
 const IconDownload: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
     <polyline points="7 10 12 15 17 10" />
     <line x1="12" y1="15" x2="12" y2="3" />
-  </svg>
-);
-
-const IconPaperclip: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
-  <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48" />
   </svg>
 );
 
@@ -54,7 +46,6 @@ interface LetterRequestFormProps {
 }
 
 export const LetterRequestForm: React.FC<LetterRequestFormProps> = ({ onFormSubmit, onCancel, letterToEdit }) => {
-  const { user } = useAuth();
   const [selectedTemplate, setSelectedTemplate] = useState<LetterTemplate | null>(null);
   const [formData, setFormData] = useState<Record<string, string>>({});
   const [title, setTitle] = useState('');
@@ -74,11 +65,6 @@ export const LetterRequestForm: React.FC<LetterRequestFormProps> = ({ onFormSubm
   const [emailError, setEmailError] = useState<string | null>(null);
   const [sendSuccess, setSendSuccess] = useState(false);
   const [sendError, setSendError] = useState<string | null>(null);
-
-  // File upload states
-  const [attachments, setAttachments] = useState<{ name: string; url: string; path: string }[]>([]);
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadError, setUploadError] = useState<string | null>(null);
 
   useEffect(() => {
     if (letterToEdit) {
@@ -132,46 +118,6 @@ export const LetterRequestForm: React.FC<LetterRequestFormProps> = ({ onFormSubm
     }
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || !user) return;
-
-    setIsUploading(true);
-    setUploadError(null);
-
-    try {
-      const uploadPromises = Array.from(files).map(async (file) => {
-        const result = await storageService.uploadFile(file, user.email);
-        return {
-          name: file.name,
-          url: result.url,
-          path: result.path
-        };
-      });
-
-      const uploadedFiles = await Promise.all(uploadPromises);
-      setAttachments(prev => [...prev, ...uploadedFiles]);
-    } catch (err: any) {
-      setUploadError(err.message);
-    } finally {
-      setIsUploading(false);
-      // Reset the input
-      e.target.value = '';
-    }
-  };
-
-  const handleRemoveAttachment = async (index: number) => {
-    const attachment = attachments[index];
-    try {
-      await storageService.deleteFile(attachment.path);
-      setAttachments(prev => prev.filter((_, i) => i !== index));
-    } catch (err: any) {
-      console.error('Failed to delete attachment:', err);
-      // Still remove from UI even if deletion fails
-      setAttachments(prev => prev.filter((_, i) => i !== index));
-    }
-  };
-
   const handleSaveLetter = async () => {
     if (!selectedTemplate) return;
     setIsSaving(true);
@@ -186,8 +132,6 @@ export const LetterRequestForm: React.FC<LetterRequestFormProps> = ({ onFormSubm
             aiGeneratedContent: aiDraft,
             status: letterToEdit?.status || 'draft',
             priority: letterToEdit?.priority || 'medium',
-            // Store attachment URLs in the letter data
-            attachments: attachments.map(att => ({ name: att.name, url: att.url })),
         };
         await onFormSubmit(letterData);
     } catch (err: any) {
@@ -307,43 +251,6 @@ export const LetterRequestForm: React.FC<LetterRequestFormProps> = ({ onFormSubm
                     <option>Long</option>
                 </Select>
             </div>
-          </div>
-
-          <div>
-            <Label htmlFor="attachments">Attachments (Optional)</Label>
-            <div className="mt-1">
-              <input
-                id="attachments"
-                type="file"
-                multiple
-                accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png"
-                onChange={handleFileUpload}
-                disabled={isUploading}
-                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 dark:file:bg-blue-900/20 dark:file:text-blue-400"
-              />
-              {isUploading && <p className="text-sm text-blue-600 mt-1">Uploading files...</p>}
-              {uploadError && <p className="text-sm text-red-500 mt-1">{uploadError}</p>}
-            </div>
-            
-            {attachments.length > 0 && (
-              <div className="mt-2 space-y-2">
-                {attachments.map((attachment, index) => (
-                  <div key={index} className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-800 rounded-md">
-                    <div className="flex items-center gap-2">
-                      <IconPaperclip className="h-4 w-4 text-gray-500" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">{attachment.name}</span>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveAttachment(index)}
-                      className="text-red-500 hover:text-red-700 text-sm"
-                    >
-                      Remove
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
           </div>
         </CardContent>
         <CardFooter className="flex justify-between">

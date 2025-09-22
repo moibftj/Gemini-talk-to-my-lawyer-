@@ -37,7 +37,6 @@ export interface LetterRequest {
   aiGeneratedContent?: string;
   templateData?: Record<string, string>; // Stores user input for template fields
   finalContent?: string;
-  attachments?: { name: string; url: string }[]; // File attachments
   createdAt: string; // TIMESTAMPTZ
   updatedAt: string; // TIMESTAMPTZ
 }
