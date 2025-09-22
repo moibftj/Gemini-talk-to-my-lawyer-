@@ -1,6 +1,7 @@
 import supabase from './supabase';
 import type { LetterRequest } from '../types';
 import type { LetterTone, LetterLength } from './aiService';
+import supabase from './supabase';
 
 // This file is the single source of truth for all frontend-to-backend communication.
 // It uses the Supabase client to interact with the database and Edge Functions.
