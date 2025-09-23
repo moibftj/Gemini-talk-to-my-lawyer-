@@ -10,8 +10,8 @@ import { Label, Input, Select } from './Form';
 
 type View = 'login' | 'signup' | 'forgot_password';
 
-export const AuthPage: React.FC = () => {
-  const [view, setView] = useState<View>('login');
+export const AuthPage: React.FC<{ initialView?: View }> = ({ initialView }) => {
+  const [view, setView] = useState<View>(initialView ?? 'login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState<UserRole>('user');
@@ -142,7 +142,7 @@ export const AuthPage: React.FC = () => {
                     type="password"
                     required
                     minLength={6}
-                    placeholder="••••••••"
+                    placeholder="••••���•••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                   />
@@ -196,10 +196,10 @@ export const AuthPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-gray-950 flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen bg-slate-50 dark:bg-gray-950 flex flex-col items-center justify-center p-4 bg-[url('https://cdn.builder.io/api/v1/image/assets%2F4d1ace0a14624e4d90fc8baf4fbd633e%2Fe837835e651a436a87fa54e9350ecd76')] bg-no-repeat bg-center bg-cover shadow" >
       <div className="flex items-center gap-3 mb-8">
         <IconLogo className="h-10 w-10 text-blue-600 dark:text-blue-400" />
-        <span className="text-3xl font-bold text-gray-900 dark:text-white">Law Letter AI</span>
+        <span className="text-3xl font-bold text-gray-900 dark:text-white drop-shadow">Law Letter AI</span>
       </div>
       <Card className="w-full max-w-md">
         {renderContent()}
