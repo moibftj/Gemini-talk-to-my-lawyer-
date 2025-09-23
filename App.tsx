@@ -1,10 +1,10 @@
-
 import React, { useState, useEffect } from 'react';
 import { Header } from './components/Header';
 import { Spotlight } from './components/magicui/spotlight';
 import { SparklesText } from './components/magicui/sparkles-text';
 import { useAuth } from './contexts/AuthContext';
 import { AuthPage } from './components/AuthPage';
+import { LandingPage } from './components/LandingPage';
 import { Spinner } from './components/Spinner';
 
 // Import the new role-specific dashboards
@@ -18,6 +18,8 @@ type UserDashboardView = 'dashboard' | 'new_letter_form';
 const App: React.FC = () => {
   const { user, isLoading, authEvent } = useAuth();
   const [userDashboardView, setUserDashboardView] = useState<UserDashboardView>('dashboard');
+  const [showAuth, setShowAuth] = useState(false);
+  const [authInitialView, setAuthInitialView] = useState<'login' | 'signup'>('login');
 
   if (isLoading) {
     return <Spinner />;
@@ -30,7 +32,15 @@ const App: React.FC = () => {
   }
 
   if (!user) {
-    return <AuthPage />;
+    if (showAuth) {
+      return <AuthPage initialView={authInitialView} />;
+    }
+    return (
+      <LandingPage
+        onLogin={() => { setAuthInitialView('login'); setShowAuth(true); }}
+        onSignup={() => { setAuthInitialView('signup'); setShowAuth(true); }}
+      />
+    );
   }
 
   const renderDashboard = () => {
