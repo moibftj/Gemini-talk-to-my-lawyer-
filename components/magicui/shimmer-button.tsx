@@ -9,9 +9,9 @@ export const ShimmerButton = React.forwardRef<
     <button
       ref={ref}
       className={cn(
-        "relative isolate overflow-hidden rounded-lg px-6 py-2 font-medium text-white transition-all duration-300",
-        "bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600",
-        "disabled:cursor-not-allowed disabled:bg-slate-400 dark:disabled:bg-slate-600",
+        "relative isolate overflow-hidden rounded-xl px-6 py-3 font-semibold text-white transition-all duration-300",
+        "bg-legal-gradient hover:shadow-neon-blue transform hover:scale-105 active:scale-95",
+        "disabled:cursor-not-allowed disabled:opacity-50 disabled:transform-none",
         className,
       )}
       {...props}
@@ -19,7 +19,7 @@ export const ShimmerButton = React.forwardRef<
       <span className="relative z-20">{children}</span>
       <span
         aria-hidden="true"
-        className="absolute inset-0 z-10 animate-shimmer bg-[linear-gradient(110deg,transparent,rgba(255,255,255,0.4),transparent)] bg-[length:200%_100%]"
+        className="absolute inset-0 z-10 animate-shimmer bg-[linear-gradient(110deg,transparent,rgba(255,255,255,0.6),transparent)] bg-[length:200%_100%] opacity-0 hover:opacity-100 transition-opacity duration-500"
       />
     </button>
   );

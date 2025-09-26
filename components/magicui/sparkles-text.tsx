@@ -10,12 +10,20 @@ export const SparklesText: React.FC<SparklesTextProps> = ({
   className,
   ...props
 }) => {
-  // The sparkle animation functionality has been removed.
-  // The component now renders its children inside a simple span,
-  // preserving any passed class names and props.
   return (
-    <span className={cn(className)} {...props}>
-      {children}
+    <span
+      className={cn(
+        "relative inline-block text-shimmer font-bold tracking-tight",
+        "animate-glow",
+        className
+      )}
+      {...props}
+    >
+      <span className="relative z-10">{children}</span>
+      <span
+        className="absolute inset-0 animate-pulse bg-gradient-to-r from-primary-400/20 via-gold-400/20 to-primary-400/20 blur-sm"
+        aria-hidden="true"
+      />
     </span>
   );
 };
