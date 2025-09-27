@@ -1,6 +1,7 @@
 import { apiClient } from './apiClient';
-import type { LetterTone, LetterLength } from '../types';
-export type { LetterTone, LetterLength } from '../types';
+
+export type LetterTone = 'Formal' | 'Aggressive' | 'Conciliatory' | 'Neutral';
+export type LetterLength = 'Short' | 'Medium' | 'Long';
 
 interface LetterDetails {
     title: string;

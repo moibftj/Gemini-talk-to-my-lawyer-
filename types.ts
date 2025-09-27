@@ -6,10 +6,6 @@ export type SubscriptionStatus = 'inactive' | 'active' | 'past_due' | 'cancelled
 export type MessageType = 'text' | 'system' | 'file';
 export type PaymentStatus = 'pending' | 'succeeded' | 'failed' | 'cancelled' | 'refunded';
 
-// AI letter generation options
-export type LetterTone = 'Formal' | 'Aggressive' | 'Conciliatory' | 'Neutral';
-export type LetterLength = 'Short' | 'Medium' | 'Long';
-
 // User interface
 export interface User {
   email: string;

@@ -33,8 +33,7 @@ export const Spotlight = ({ children, className, ...props }: SpotlightProps) => 
           background: useMotionTemplate`
             radial-gradient(
               600px circle at ${mouseX}px ${mouseY}px,
-              rgba(59, 130, 246, 0.25),
-              rgba(245, 158, 11, 0.1) 40%,
+              rgba(44, 126, 224, 0.15),
               transparent 80%
             )
           `,
