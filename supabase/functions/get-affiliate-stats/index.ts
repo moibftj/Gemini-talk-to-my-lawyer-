@@ -1,5 +1,5 @@
 // FIX: Add Deno types reference to resolve errors with Deno.env.
-/// <reference types="https://esm.sh/@supabase/functions-js@2.4.1/src/edge-runtime.d.ts" />
+/// <reference types="https://deno.land/x/xhr@0.3.0/lib/deno.xhr.d.ts" />
 
 import { serve } from "https://deno.land/std@0.201.0/http/server.ts";
 

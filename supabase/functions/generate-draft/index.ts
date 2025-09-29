@@ -1,5 +1,5 @@
 // FIX: Add Deno types reference to resolve errors with Deno.env.
-/// <reference types="https://esm.sh/@supabase/functions-js@2.4.1/src/edge-runtime.d.ts" />
+/// <reference types="https://deno.land/x/xhr@0.3.0/lib/deno.xhr.d.ts" />
 
 import { serve } from "https://deno.land/std@0.201.0/http/server.ts";
 
@@ -41,7 +41,7 @@ serve(async (req) => {
 
     // 4. Initialize the Gemini client and build the prompt
     const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
-    const model = "gemini-2.5-flash";
+    const model = "gemini-1.5-flash";
 
     const systemInstruction = `You are an expert legal assistant. Your primary task is to complete a given letter template using user-provided details.
 
@@ -83,14 +83,13 @@ Follow these instructions strictly:
     `;
 
     // 5. Call the Gemini API
-    const response = await ai.models.generateContent({
-      model,
-      contents: userPrompt,
-      config: {
-        systemInstruction,
-      },
+    const model_instance = ai.getGenerativeModel({ 
+      model: model,
+      systemInstruction: systemInstruction
     });
-    const draft = response.text;
+    const result = await model_instance.generateContent(userPrompt);
+    const response = await result.response;
+    const draft = response.text();
 
     // 6. Return the successful response
     return new Response(JSON.stringify({ draft }), {
