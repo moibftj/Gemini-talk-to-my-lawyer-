@@ -41,6 +41,7 @@ serve(async (req) => {
 
     // 4. Initialize the Gemini client and build the prompt
     const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
+
     const model = "gemini-1.5-flash";
 
     const systemInstruction = `You are an expert legal assistant. Your primary task is to complete a given letter template using user-provided details.

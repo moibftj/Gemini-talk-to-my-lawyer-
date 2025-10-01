@@ -58,7 +58,13 @@ const LetterRow: React.FC<{ letter: LetterRequest; onEdit: (letter: LetterReques
             Updated {new Date(letter.updatedAt).toLocaleDateString()}
         </time>
         <Tooltip text="Edit Letter">
-            <button onClick={() => onEdit(letter)} className="text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 p-1 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled={isDeleting}>
+            <button
+                onClick={() => onEdit(letter)}
+                className="text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 p-1 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={isDeleting}
+                aria-label="Edit Letter"
+                title="Edit Letter"
+            >
                 <IconEdit className="h-4 w-4" />
             </button>
         </Tooltip>
