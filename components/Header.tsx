@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { IconLogo, IconUser } from '../constants';
+import { IconLogo, IconUser } from '../contexts/constants';
 
 interface HeaderProps {
     userDashboardView?: 'dashboard' | 'new_letter_form';

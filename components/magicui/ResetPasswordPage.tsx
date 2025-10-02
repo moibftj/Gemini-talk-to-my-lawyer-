@@ -1,12 +1,11 @@
-
 import React, { useState, FormEvent } from 'react';
-import { useAuth } from '../contexts/AuthContext';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from './Card';
-import { ShinyButton } from './magicui/shiny-button';
-import { ShimmerButton } from './magicui/shimmer-button';
-import { IconLogo } from '../contexts/constants';
-import { AuthPage } from './AuthPage';
-import { Label, Input } from './Form';
+import { useAuth } from '../../contexts/AuthContext';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../Card';
+import { ShinyButton } from './shiny-button';
+import { ShimmerButton } from './shimmer-button';
+import { IconLogo } from '../../contexts/constants';
+import { AuthPage } from '../AuthPage';
+import { Label, Input } from '../Form';
 
 export const ResetPasswordPage: React.FC = () => {
     const [password, setPassword] = useState('');

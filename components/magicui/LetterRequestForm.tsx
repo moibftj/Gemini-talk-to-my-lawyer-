@@ -1,16 +1,15 @@
-
 import React, { useState, useEffect } from 'react';
 import jsPDF from 'jspdf';
-import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from './Card';
-import { LETTER_TEMPLATES, IconSpinner } from '../contexts/constants';
-import { ShinyButton } from './magicui/shiny-button';
-import { ShimmerButton } from './magicui/shimmer-button';
-import { SparklesText } from './magicui/sparkles-text';
-import { generateLetterDraft, LetterTone, LetterLength } from '../services/aiService';
-import { isValidEmail } from '../lib/utils';
-import type { LetterRequest, LetterTemplate } from '../types';
-import { Label, Input, Select, Textarea } from './Form';
-import { apiClient } from '../services/apiClient';
+import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from '../Card';
+import { LETTER_TEMPLATES, IconSpinner } from '../../contexts/constants';
+import { ShinyButton } from './shiny-button';
+import { ShimmerButton } from './shimmer-button';
+import { SparklesText } from './sparkles-text';
+import { generateLetterDraft, LetterTone, LetterLength } from '../../services/aiService';
+import { isValidEmail } from '../../lib/utils';
+import type { LetterRequest, LetterTemplate } from '../../types';
+import { Label, Input, Select, Textarea } from '../Form';
+import { apiClient } from '../../services/apiClient';
 
 const IconDownload: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

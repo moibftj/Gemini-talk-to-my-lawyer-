@@ -1,9 +1,10 @@
+
 import React, { useState, FormEvent } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from './Card';
 import { ShinyButton } from './magicui/shiny-button';
 import { ShimmerButton } from './magicui/shimmer-button';
-import { IconLogo } from '../constants';
+import { IconLogo } from '../contexts/constants';
 import type { UserRole } from '../types';
 import { isValidEmail } from '../lib/utils';
 import { Label, Input, Select } from './Form';

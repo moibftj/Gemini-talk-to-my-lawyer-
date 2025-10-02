@@ -1,5 +1,12 @@
-// FIX: Add Deno types reference to resolve errors with Deno.env.
-/// <reference types="https://deno.land/x/xhr@0.3.0/lib/deno.xhr.d.ts" />
+// Fix: Moved the Deno types reference to the top of the file to ensure it's processed correctly by the TypeScript language server.
+/// <reference types="https://esm.sh/@supabase/functions-js@2/src/edge-runtime.d.ts" />
+
+// Fix: Add explicit Deno declaration to solve TypeScript errors when the Deno environment types are not automatically picked up.
+declare const Deno: {
+  env: {
+    get: (key: string) => string | undefined;
+  };
+};
 
 import { serve } from "https://deno.land/std@0.201.0/http/server.ts";
 

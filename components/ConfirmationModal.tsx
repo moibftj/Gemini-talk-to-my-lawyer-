@@ -2,7 +2,7 @@ import React from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from './Card';
 import { ShimmerButton } from './magicui/shimmer-button';
-import { IconSpinner } from '../constants';
+import { IconSpinner } from '../contexts/constants';
 
 interface ConfirmationModalProps {
   isOpen: boolean;

@@ -1,17 +1,17 @@
 
 import React, { useState, useEffect } from 'react';
-import { Header } from './components/Header';
-import { Spotlight } from './components/magicui/spotlight';
-import { SparklesText } from './components/magicui/sparkles-text';
-import { useAuth } from './contexts/AuthContext';
-import { AuthPage } from './components/AuthPage';
-import { Spinner } from './components/Spinner';
+import { Header } from './Header';
+import { Spotlight } from './magicui/spotlight';
+import { SparklesText } from './magicui/sparkles-text';
+import { useAuth } from '../contexts/AuthContext';
+import { AuthPage } from './AuthPage';
+import { Spinner } from './Spinner';
 
 // Import the new role-specific dashboards
-import { UserDashboard } from './components/Dashboard';
-import { EmployeeDashboard } from './components/ProjectRoadmap';
-import { AdminDashboard } from './components/DatabasePlan';
-import { ResetPasswordPage } from './components/ResetPasswordPage';
+import { UserDashboard } from '../contexts/Dashboard';
+import { EmployeeDashboard } from './ProjectRoadmap';
+import { AdminDashboard } from './DatabasePlan';
+import { ResetPasswordPage } from './magicui/ResetPasswordPage';
 
 type UserDashboardView = 'dashboard' | 'new_letter_form';
 

@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardHeader, CardTitle, CardContent, CardDescription } from './Card';
-import { STATUS_STYLES, IconFilePlus, IconEdit, IconTrash, getTemplateLabel, IconSpinner } from '../constants';
-import { ShimmerButton } from './magicui/shimmer-button';
-import { NeonGradientCard } from './magicui/neon-gradient-card';
-import { BlurFade } from './magicui/blur-fade';
-import { LetterRequestForm } from './LetterRequestForm';
+import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '../components/Card';
+import { STATUS_STYLES, IconFilePlus, IconEdit, IconTrash, getTemplateLabel, IconSpinner } from './constants';
+import { ShimmerButton } from '../components/magicui/shimmer-button';
+import { NeonGradientCard } from '../components/magicui/neon-gradient-card';
+import { BlurFade } from '../components/magicui/blur-fade';
+import { LetterRequestForm } from '../components/magicui/LetterRequestForm';
 import { apiClient } from '../services/apiClient';
 import type { LetterRequest } from '../types';
-import { Tooltip } from './Tooltip';
-import { ConfirmationModal } from './ConfirmationModal';
+import { Tooltip } from '../components/Tooltip';
+import { ConfirmationModal } from '../components/ConfirmationModal';
 
 type View = 'dashboard' | 'new_letter_form';
 
@@ -58,13 +58,7 @@ const LetterRow: React.FC<{ letter: LetterRequest; onEdit: (letter: LetterReques
             Updated {new Date(letter.updatedAt).toLocaleDateString()}
         </time>
         <Tooltip text="Edit Letter">
-            <button
-                onClick={() => onEdit(letter)}
-                className="text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 p-1 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled={isDeleting}
-                aria-label="Edit Letter"
-                title="Edit Letter"
-            >
+            <button onClick={() => onEdit(letter)} className="text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 p-1 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled={isDeleting}>
                 <IconEdit className="h-4 w-4" />
             </button>
         </Tooltip>
